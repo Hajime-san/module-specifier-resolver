@@ -1,5 +1,5 @@
 [package]
-name = "node-2-deno"
+name = "ntd"
 version = "0.1.0"
 edition = "2021"
 
