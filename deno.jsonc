@@ -1,0 +1,18 @@
+{
+    "tasks": {
+        "run": "deno run -A mod.ts"
+    },
+    "compilerOptions": {
+        "lib": [
+            "deno.ns",
+            "ESNext",
+            "deno.window"
+        ]
+    },
+    "fmt": {
+        "files": {
+            "include": ["mod.ts", "examples"],
+            "exclude": ["node_modules"]
+        }
+    }
+}

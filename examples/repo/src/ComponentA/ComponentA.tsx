@@ -1,5 +1,14 @@
+import type { User } from "../types/User";
+
 export const ComponentA = () => {
-    return (
-        <div>ComponentA</div>
-    )
-}
+  const user: User = {
+    id: 0,
+    name: "john",
+  };
+  return (
+    <>
+      {...user}
+      <div>ComponentA</div>
+    </>
+  );
+};
