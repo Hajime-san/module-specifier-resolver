@@ -1,28 +1,11 @@
 import { asserts, ts } from './dev_deps.ts';
-import { getModuleSpecifier, isTokenObject } from './mod.ts';
+import { getModuleSpecifier, isTokenObject, transform } from './mod.ts';
+import {
+  externalLibImportDeclaration,
+  localSourceImportDeclaration,
+  tsConfigMockObject,
+} from './tests/fixture/mod.ts';
 const { assertEquals } = asserts;
-
-const localSourceImportDeclaration = ts.factory.createImportDeclaration(
-  undefined,
-  ts.factory.createImportClause(
-    false,
-    ts.factory.createIdentifier('ComponentA'),
-    undefined,
-  ),
-  ts.factory.createStringLiteral('./ComponentA'),
-  undefined,
-);
-
-const externalLibImportDeclaration = ts.factory.createImportDeclaration(
-  undefined,
-  ts.factory.createImportClause(
-    false,
-    ts.factory.createIdentifier('React'),
-    undefined,
-  ),
-  ts.factory.createStringLiteral('react'),
-  undefined,
-);
 
 Deno.test('isTokenObject', () => {
   assertEquals(
@@ -57,6 +40,26 @@ Deno.test('getModuleSpecifier', async (t) => {
         moduleSpecifier: 'react',
         node: externalLibImportDeclaration,
       },
+    );
+  });
+});
+
+Deno.test('transform', async (t) => {
+  await t.step('resolve path', () => {
+    assertEquals(
+      transform({
+        sourceFile: ts.createSourceFile(
+          './src/App.tsx',
+          `import { ComponentA } from './ComponentA';`,
+          ts.ScriptTarget.ESNext,
+        ),
+        imports: [
+          { original: './ComponentA', resolved: './ComponentA.tsx' },
+        ],
+        tsConfigObject: tsConfigMockObject,
+        printer: ts.createPrinter(),
+      }),
+      `import { ComponentA } from "./ComponentA.tsx";\n`,
     );
   });
 });
