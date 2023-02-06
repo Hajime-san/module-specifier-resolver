@@ -9,7 +9,7 @@ type TokenObject = NodeLike & {
   text: string;
 };
 
-const isTokenObject = (node: NodeLike): node is TokenObject => {
+export const isTokenObject = (node: NodeLike): node is TokenObject => {
   // deno-lint-ignore no-prototype-builtins
   return (node as unknown as Record<string, unknown>).hasOwnProperty('text');
 };
@@ -129,6 +129,24 @@ const resolveImportDeclarationSpecifier = (
   return _resolveImportDeclarationSpecifier;
 };
 
+const transform = (args: {
+  sourceFile: ts.SourceFile;
+  imports: ReturnType<typeof resolvedModules>;
+  tsConfigObject: ts.ParsedCommandLine;
+  printer: ts.Printer;
+}) => {
+  const { sourceFile, imports, tsConfigObject, printer } = args;
+  const transformationResult = ts.transform(sourceFile, [
+    resolveImportDeclarationSpecifier(imports),
+  ], tsConfigObject.options);
+
+  return printer.printNode(
+    ts.EmitHint.Unspecified,
+    transformationResult.transformed[0],
+    ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
+  );
+};
+
 const main = async (args: {
   basePath: string;
   options?: {
@@ -162,21 +180,18 @@ const main = async (args: {
         tsConfigObject,
       });
 
-      const source = ts.createSourceFile(
+      const sourceFile = ts.createSourceFile(
         currentFileAbsPath,
         fileContent,
         ts.ScriptTarget.ESNext,
       );
 
-      const transformationResult = ts.transform(source, [
-        resolveImportDeclarationSpecifier(imports),
-      ], tsConfigObject.options);
-
-      const result = printer.printNode(
-        ts.EmitHint.Unspecified,
-        transformationResult.transformed[0],
-        ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
-      );
+      const result = transform({
+        sourceFile,
+        imports,
+        tsConfigObject,
+        printer,
+      });
       console.log(`file: ${currentFileAbsPath}`);
       console.log(`%c${result}`, 'color: green');
     }
