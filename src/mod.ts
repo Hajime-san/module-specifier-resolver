@@ -1,15 +1,48 @@
 import { path, ts, walk } from './dev_deps.ts';
 import { relativeFilePath } from './path.ts';
 
-type TokenObject = ts.Node & {
+type NodeLike = ts.Node | ts.Expression;
+
+type HasModuleSpecifierNode = ts.ImportDeclaration | ts.ExportDeclaration;
+
+type TokenObject = NodeLike & {
   text: string;
 };
 
-const isTokenObject = (node: ts.Node): node is TokenObject => {
+const isTokenObject = (node: NodeLike): node is TokenObject => {
+  // deno-lint-ignore no-prototype-builtins
   return (node as unknown as Record<string, unknown>).hasOwnProperty('text');
 };
 
-const resolvedModuleImports = (args: {
+const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
+  node: T;
+  imports: ReturnType<typeof resolvedModules>;
+}): {
+  moduleSpecifier: string;
+  node: T;
+} => {
+  const { node, imports } = args;
+  let moduleSpecifier: string | undefined;
+  if (node.moduleSpecifier && isTokenObject(node.moduleSpecifier)) {
+    const _moduleSpecifier = node.moduleSpecifier;
+    moduleSpecifier = imports.find((v) =>
+      v.original === _moduleSpecifier.text
+    )?.resolved ??
+      _moduleSpecifier.text;
+  }
+
+  if (typeof moduleSpecifier === 'undefined') {
+    throw new Error(
+      'failed to get module specifier from TypeScript AST Nodes.',
+    );
+  }
+  return {
+    moduleSpecifier,
+    node,
+  };
+};
+
+const resolvedModules = (args: {
   importedFiles: ts.FileReference[];
   currentFileAbsPath: string;
   tsConfigObject: ts.ParsedCommandLine;
@@ -38,41 +71,53 @@ const resolvedModuleImports = (args: {
       const { resolvedModule } = _resolveModuleName(fileName);
       const importLoc = resolvedModule!.resolvedFileName;
       return {
-        original: `${fileName}`,
+        original: fileName,
         resolved: relativeFilePath(currentFileAbsPath, importLoc),
       };
     });
 };
 
 const resolveImportDeclarationSpecifier = (
-  imports: ReturnType<typeof resolvedModuleImports>,
+  imports: ReturnType<typeof resolvedModules>,
 ) => {
   const _resolveImportDeclarationSpecifier =
     (context: ts.TransformationContext) => (rootNode: ts.Node) => {
       const visit = (node: ts.Node): ts.Node => {
         const newNode = ts.visitEachChild(node, visit, context);
 
-        if (ts.isImportDeclaration(newNode)) {
-          let moduleSpecifier: string | undefined;
-          if (isTokenObject(newNode.moduleSpecifier)) {
-            const _moduleSpecifier = newNode.moduleSpecifier;
-            moduleSpecifier = imports.find((v) =>
-              v.original === _moduleSpecifier.text
-            )?.resolved ??
-              _moduleSpecifier.text;
-          }
-
-          if (typeof moduleSpecifier === 'undefined') {
-            throw new Error(
-              'failed to get import moduleSpecifier from TypeScript AST Nodes.',
-            );
-          }
-
-          return context.factory.createImportDeclaration(
-            newNode.modifiers,
-            newNode.importClause,
+        // Transform "aggregating modules"
+        //
+        // export { foo } from "./foo"
+        // to
+        // export { foo } from "./foo.(ts|tsx|d.ts)"
+        if (ts.isExportDeclaration(newNode)) {
+          const { moduleSpecifier, node } = getModuleSpecifier({
+            node: newNode,
+            imports,
+          });
+          return context.factory.createExportDeclaration(
+            node.modifiers,
+            false,
+            node.exportClause,
             context.factory.createStringLiteral(moduleSpecifier),
-            newNode.assertClause,
+            node.assertClause,
+          );
+        }
+        // Transform "static import"
+        //
+        // import { bar } from "./bar"
+        // to
+        // import { bar } from "./bar.(ts|tsx|d.ts)"
+        if (ts.isImportDeclaration(newNode)) {
+          const { moduleSpecifier, node } = getModuleSpecifier({
+            node: newNode,
+            imports,
+          });
+          return context.factory.createImportDeclaration(
+            node.modifiers,
+            node.importClause,
+            context.factory.createStringLiteral(moduleSpecifier),
+            node.assertClause,
           );
         }
         return newNode;
@@ -112,7 +157,7 @@ const main = async (args: {
       if (importedFiles.length === 0) {
         continue;
       }
-      const imports = resolvedModuleImports({
+      const imports = resolvedModules({
         importedFiles,
         currentFileAbsPath,
         tsConfigObject,
@@ -133,13 +178,14 @@ const main = async (args: {
         transformationResult.transformed[0],
         ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
       );
-      console.log(result);
+      console.log(`file: ${currentFileAbsPath}`);
+      console.log(`%c${result}`, 'color: green');
     }
   }
 };
 
 await main({
-  basePath: 'examples/repo/src',
+  basePath: './examples/repo/src',
   options: {
     tsConfigPath: './examples/repo/tsconfig.json',
   },
