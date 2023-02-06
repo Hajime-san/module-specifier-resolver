@@ -5,6 +5,7 @@ import { ComponentB } from './ComponentB';
 import { _ComponentC } from './ComponentC';
 import { ComponentC } from './ComponentC';
 
+// a comment
 createRoot(document.getElementById('root') as HTMLElement)
   .render(
     <React.StrictMode>
