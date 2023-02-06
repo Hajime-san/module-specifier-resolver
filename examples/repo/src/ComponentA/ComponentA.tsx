@@ -1,13 +1,14 @@
-import type { User } from "../types/User";
+import type { User } from '../types/User';
 
 export const ComponentA = () => {
   const user: User = {
     id: 0,
-    name: "john",
+    name: 'john',
   };
   return (
     <>
-      {...user}
+      <div>id: {user.id}</div>
+      <div>name: {user.name}</div>
       <div>ComponentA</div>
     </>
   );

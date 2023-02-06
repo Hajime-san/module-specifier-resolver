@@ -5,6 +5,10 @@
     "lib": ["dom", "ESNext"],
     "esModuleInterop": true,
     "strict": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@alias/*": ["./src/alias/*"]
+    }
   }
 }
