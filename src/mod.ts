@@ -152,11 +152,10 @@ const main = async (args: {
       const fileContent = decoder.decode(
         await Deno.readFile(currentFileAbsPath),
       );
-      const { importedFiles } = ts.preProcessFile(fileContent, true);
+      const { importedFiles } = ts.preProcessFile(fileContent, true, true);
 
-      if (importedFiles.length === 0) {
-        continue;
-      }
+      if (importedFiles.length === 0) continue;
+
       const imports = resolvedModules({
         importedFiles,
         currentFileAbsPath,
