@@ -14,7 +14,7 @@ export const isTokenObject = (node: NodeLike): node is TokenObject => {
   return (node as unknown as Record<string, unknown>).hasOwnProperty('text');
 };
 
-const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
+export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
   node: T;
   imports: ReturnType<typeof resolvedModules>;
 }): {
@@ -46,7 +46,10 @@ const resolvedModules = (args: {
   importedFiles: ts.FileReference[];
   currentFileAbsPath: string;
   tsConfigObject: ts.ParsedCommandLine;
-}) => {
+}): Array<{
+  original: string;
+  resolved: string;
+}> => {
   const { importedFiles, currentFileAbsPath, tsConfigObject } = args;
   const _resolveModuleName = (fileName: string) => {
     return ts.resolveModuleName(
