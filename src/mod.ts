@@ -132,7 +132,7 @@ const resolveImportDeclarationSpecifier = (
   return _resolveImportDeclarationSpecifier;
 };
 
-const transform = (args: {
+export const transform = (args: {
   sourceFile: ts.SourceFile;
   imports: ReturnType<typeof resolvedModules>;
   tsConfigObject: ts.ParsedCommandLine;
