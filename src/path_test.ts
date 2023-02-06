@@ -1,5 +1,6 @@
-import { assertEquals } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
+import { asserts } from './dev_deps.ts';
 import { getLCS, relativeFilePath } from './path.ts';
+const { assertEquals } = asserts;
 
 Deno.test('getLCS', () => {
   assertEquals(getLCS('hello world!!', 'hello world!!!!'), 'hello world!!');
