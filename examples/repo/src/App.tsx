@@ -5,6 +5,7 @@ import { ComponentB } from './ComponentB';
 import { _ComponentC } from './ComponentC';
 import { ComponentC } from './ComponentC';
 import style from './style.css';
+import './sideEffect';
 
 // a comment
 createRoot(document.getElementById('root') as HTMLElement)
