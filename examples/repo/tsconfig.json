@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "strict": true,
     "isolatedModules": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@alias/*": ["./src/alias/*"]
     }

@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "mod": "deno run -A mod.ts",
-    "path": "deno run -A path.ts"
+    "mod": "deno run -A src/mod.ts",
+    "path": "deno run -A src/path.ts"
   },
   "compilerOptions": {
     "lib": ["deno.ns", "ESNext", "deno.window"]

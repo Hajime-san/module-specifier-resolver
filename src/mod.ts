@@ -15,23 +15,27 @@ const resolvedModuleImports = (args: {
   tsConfigObject: ts.ParsedCommandLine;
 }) => {
   const { importedFiles, currentFileAbsPath, tsConfigObject } = args;
-  const resolveModuleName = (fileName: string) => {
+  const _resolveModuleName = (fileName: string) => {
     return ts.resolveModuleName(
       fileName,
       currentFileAbsPath,
       tsConfigObject.options,
       ts.sys,
       undefined,
+      undefined,
+      ts.ModuleKind.ESNext,
     );
   };
   return importedFiles
     .filter(({ fileName }) => {
-      const { resolvedModule } = resolveModuleName(fileName);
+      const { resolvedModule } = _resolveModuleName(fileName);
+      // ignore node_modules
       return !resolvedModule?.isExternalLibraryImport &&
+        // ignore falsy resolvedFileName
         resolvedModule?.resolvedFileName;
     })
     .map(({ fileName }) => {
-      const { resolvedModule } = resolveModuleName(fileName);
+      const { resolvedModule } = _resolveModuleName(fileName);
       const importLoc = resolvedModule!.resolvedFileName;
       return {
         original: `${fileName}`,
