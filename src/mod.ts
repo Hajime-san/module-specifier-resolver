@@ -80,10 +80,10 @@ const resolvedModules = (args: {
     });
 };
 
-const resolveImportDeclarationSpecifier = (
+const transformeModuleSpecifier = (
   imports: ReturnType<typeof resolvedModules>,
 ) => {
-  const _resolveImportDeclarationSpecifier =
+  const _transformeModuleSpecifier =
     (context: ts.TransformationContext) => (rootNode: ts.Node) => {
       const visit = (node: ts.Node): ts.Node => {
         const newNode = ts.visitEachChild(node, visit, context);
@@ -129,7 +129,7 @@ const resolveImportDeclarationSpecifier = (
       return ts.visitNode(rootNode, visit);
     };
 
-  return _resolveImportDeclarationSpecifier;
+  return _transformeModuleSpecifier;
 };
 
 export const transform = (args: {
@@ -140,7 +140,7 @@ export const transform = (args: {
 }) => {
   const { sourceFile, imports, tsConfigObject, printer } = args;
   const transformationResult = ts.transform(sourceFile, [
-    resolveImportDeclarationSpecifier(imports),
+    transformeModuleSpecifier(imports),
   ], tsConfigObject.options);
 
   return printer.printNode(
