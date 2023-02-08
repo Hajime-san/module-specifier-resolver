@@ -55,7 +55,11 @@ const resolvedModules = (args: {
     return ts.resolveModuleName(
       fileName,
       currentFileAbsPath,
-      tsConfigObject.options,
+      {
+        ...tsConfigObject.options,
+        // Override module resolution to resolve module path correctly
+        moduleResolution: ts.ModuleResolutionKind.Bundler
+      },
       ts.sys,
       undefined,
       undefined,
@@ -243,6 +247,8 @@ const main = async (args: {
           `%c Update ${transformedList.length} files, finished.`,
           'color: green',
         );
+        Deno.exit();
+      } else {
         Deno.exit();
       }
     }
