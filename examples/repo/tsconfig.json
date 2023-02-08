@@ -3,11 +3,15 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "lib": ["dom", "ESNext"],
+    "module": "ESNext",
     "esModuleInterop": true,
     "strict": true,
     "isolatedModules": true,
     "baseUrl": "./",
     "allowJs": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "paths": {
       "@alias/*": ["./src/alias/*"]
     }
