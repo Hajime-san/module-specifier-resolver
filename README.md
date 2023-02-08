@@ -22,9 +22,9 @@ import { bar } from "./bar.(ts|tsx|d.ts)"
 ## command
 ### remote
 - dry run
-  - `deno run --allow-env --allow-read https://deno.land/x/module_specifier_resolver@1.0.1/mod.ts -b=./src -c=./tsconfig.json -d`
+  - `deno run --unstable --allow-env --allow-read https://deno.land/x/module_specifier_resolver@1.0.2/bin.ts -b=./src -c=./tsconfig.json -d`
 - transform
- - `deno run --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@1.0.1/mod.ts -b=./src -c=./tsconfig.json -r`
+  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@1.0.2/bin.ts -b=./src -c=./tsconfig.json -r`
 ### local
 - `deno task run-dry`
 - `deno task run`
@@ -38,7 +38,7 @@ import { bar } from "./bar.(ts|tsx|d.ts)"
 | -r  | enable repl interface | `boolean` | `false` |
 
 ## tips
-After you ran `mod.ts`, you should run `npx tsc --noEmit` due to check correctness of transformation by this tool.
+After you ran `bin.ts`, you should run `npx tsc --noEmit` due to check correctness of transformation by this tool.
 - `tsconfig.json` example
 ```json
 {

@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "run-dry": "deno run --allow-env --allow-read mod.ts -b=./examples/repo/src -c=./examples/repo/tsconfig.json -d",
-    "run": "deno run --allow-env --allow-read --allow-write mod.ts -b=./examples/repo/src -c=./examples/repo/tsconfig.json -r"
+    "run-dry": "deno run --allow-env --allow-read bin.ts -b=./examples/repo/src -c=./examples/repo/tsconfig.json -d",
+    "run": "deno run --allow-env --allow-read --allow-write bin.ts -b=./examples/repo/src -c=./examples/repo/tsconfig.json -r"
   },
   "compilerOptions": {
     "lib": ["deno.ns", "ESNext", "deno.window"]
