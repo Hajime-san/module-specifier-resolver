@@ -58,7 +58,7 @@ const resolvedModules = (args: {
       {
         ...tsConfigObject.options,
         // Override module resolution to resolve module path correctly
-        moduleResolution: ts.ModuleResolutionKind.Bundler
+        moduleResolution: ts.ModuleResolutionKind.Bundler,
       },
       ts.sys,
       undefined,
@@ -156,17 +156,20 @@ export const transform = (args: {
 
 const flags = cli.parse(Deno.args, {
   string: ['b', 'c'],
+  boolean: ['d'],
 });
 
-const main = async (args: {
+export const main = async (args: {
   basePath?: string;
   options?: {
     tsConfigPath?: string;
+    dryRun: boolean;
   };
 } = {
   basePath: flags.b,
   options: {
     tsConfigPath: flags.c,
+    dryRun: flags.d ?? false,
   },
 }) => {
   const { basePath, options } = args;
@@ -220,39 +223,48 @@ const main = async (args: {
         path: currentFileAbsPath,
         result,
       });
-      console.log(`file: ${currentFileAbsPath}`);
-      console.log(`%c${result}`, 'color: green');
     }
   }
 
-  if (transformedList.length > 0) {
+  if (transformedList.length === 0) {
     console.log(
-      `%ctransform target ${transformedList.length} files found.`,
-      'color: yellow',
+      `%cThere no transform target files.`,
+      'color: green',
     );
-    console.log(
-      `%cAre you sure complement the extension of module specifier to files? (y/n)`,
-      'color: yellow',
-    );
-    for await (const line of io.readLines(Deno.stdin)) {
-      if (line.trim().toLowerCase() === 'y') {
-        const encoder = new TextEncoder();
-        transformedList.forEach(async (transformed) => {
+    Deno.exit();
+  }
+  console.log(
+    `%ctransform target ${transformedList.length} files found.`,
+    'color: yellow',
+  );
+  console.log(
+    `%cAre you sure complement the extension of module specifier to files? (y/n)`,
+    'color: yellow',
+  );
+  for await (const line of io.readLines(Deno.stdin)) {
+    if (line.trim().toLowerCase() === 'y') {
+      const encoder = new TextEncoder();
+      transformedList.forEach(async (transformed) => {
+        const { path, result } = transformed;
+        if (options?.dryRun) {
+          console.log(`file: ${path}`);
+          console.log(`%c${result}`, 'color: green');
+        } else {
           await Deno.writeFile(
-            transformed.path,
-            encoder.encode(transformed.result),
+            path,
+            encoder.encode(result),
           );
-        });
-        console.log(
-          `%c Update ${transformedList.length} files, finished.`,
-          'color: green',
-        );
-        Deno.exit();
-      } else {
-        Deno.exit();
-      }
+        }
+      });
+      console.log(
+        `%c${
+          options?.dryRun ? 'Dry run ' : ''
+        }update ${transformedList.length} files, finished.`,
+        'color: green',
+      );
+      Deno.exit();
+    } else {
+      Deno.exit();
     }
   }
 };
-
-await main();
