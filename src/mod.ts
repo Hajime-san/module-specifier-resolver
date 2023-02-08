@@ -228,7 +228,7 @@ export const main = async (args: {
 
   if (transformedList.length === 0) {
     console.log(
-      `%cThere no transform target files.`,
+      `%cThere're no transform target files.`,
       'color: green',
     );
     Deno.exit();
