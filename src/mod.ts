@@ -1,4 +1,4 @@
-import { cli, path, ts, walk } from './dev_deps.ts';
+import { cli, io, path, ts, walk } from './dev_deps.ts';
 import { relativeFilePath } from './path.ts';
 
 type NodeLike = ts.Node | ts.Expression;
@@ -226,6 +226,14 @@ const main = async (args: {
       `%ctransform target ${transformed.length} files found.`,
       'color: yellow',
     );
+    console.log(
+      `%cAre you sure complement the extension of module specifier to files? (y/n)`,
+      'color: yellow',
+    );
+    for await (const line of io.readLines(Deno.stdin)) {
+      if (line.trim().toLowerCase() === 'y') {
+      }
+    }
   }
 };
 
