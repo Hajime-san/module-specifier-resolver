@@ -178,7 +178,7 @@ const main = async (args: {
   );
   const printer = ts.createPrinter();
 
-  const transformed: Array<{
+  const transformedList: Array<{
     path: string;
     result: string;
   }> = [];
@@ -212,7 +212,7 @@ const main = async (args: {
         tsConfigObject,
         printer,
       });
-      transformed.push({
+      transformedList.push({
         path: currentFileAbsPath,
         result,
       });
@@ -221,9 +221,9 @@ const main = async (args: {
     }
   }
 
-  if (transformed.length > 0) {
+  if (transformedList.length > 0) {
     console.log(
-      `%ctransform target ${transformed.length} files found.`,
+      `%ctransform target ${transformedList.length} files found.`,
       'color: yellow',
     );
     console.log(
@@ -232,6 +232,18 @@ const main = async (args: {
     );
     for await (const line of io.readLines(Deno.stdin)) {
       if (line.trim().toLowerCase() === 'y') {
+        const encoder = new TextEncoder();
+        transformedList.forEach(async (transformed) => {
+          await Deno.writeFile(
+            transformed.path,
+            encoder.encode(transformed.result),
+          );
+        });
+        console.log(
+          `%c Update ${transformedList.length} files, finished.`,
+          'color: green',
+        );
+        Deno.exit();
       }
     }
   }
