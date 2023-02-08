@@ -22,9 +22,9 @@ import { bar } from "./bar.(ts|tsx|d.ts)"
 ## command
 ### remote
 - dry run
-  - `deno run --unstable --allow-env --allow-read https://deno.land/x/module_specifier_resolver@1.0.2/bin.ts -b=./src -c=./tsconfig.json -d`
+  - `deno run --unstable --allow-env --allow-read https://deno.land/x/module_specifier_resolver@1.0.3/bin.ts -b=./src -c=./tsconfig.json -d`
 - transform
-  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@1.0.2/bin.ts -b=./src -c=./tsconfig.json -r`
+  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@1.0.3/bin.ts -b=./src -c=./tsconfig.json -r`
 ### local
 - `deno task run-dry`
 - `deno task run`
