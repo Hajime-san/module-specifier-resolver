@@ -156,20 +156,22 @@ export const transform = (args: {
 
 const flags = cli.parse(Deno.args, {
   string: ['b', 'c'],
-  boolean: ['d'],
+  boolean: ['d', 'r'],
 });
 
 export const main = async (args: {
   basePath?: string;
   options?: {
     tsConfigPath?: string;
-    dryRun: boolean;
+    dryRun?: boolean;
+    repl?: boolean;
   };
 } = {
   basePath: flags.b,
   options: {
     tsConfigPath: flags.c,
     dryRun: flags.d ?? false,
+    repl: flags.r ?? false,
   },
 }) => {
   const { basePath, options } = args;
@@ -241,30 +243,39 @@ export const main = async (args: {
     `%cAre you sure complement the extension of module specifier to files? (y/n)`,
     'color: yellow',
   );
-  for await (const line of io.readLines(Deno.stdin)) {
-    if (line.trim().toLowerCase() === 'y') {
-      const encoder = new TextEncoder();
-      transformedList.forEach(async (transformed) => {
-        const { path, result } = transformed;
-        if (options?.dryRun) {
-          console.log(`file: ${path}`);
-          console.log(`%c${result}`, 'color: green');
-        } else {
-          await Deno.writeFile(
-            path,
-            encoder.encode(result),
-          );
-        }
-      });
-      console.log(
-        `%c${
-          options?.dryRun ? 'Dry run ' : ''
-        }update ${transformedList.length} files, finished.`,
-        'color: green',
-      );
-      Deno.exit();
-    } else {
-      Deno.exit();
+  const run = () => {
+    const encoder = new TextEncoder();
+    transformedList.forEach(async (transformed) => {
+      const { path, result } = transformed;
+      if (options?.dryRun) {
+        console.log(`file: ${path}`);
+        console.log(`%c${result}`, 'color: green');
+      } else {
+        await Deno.writeFile(
+          path,
+          encoder.encode(result),
+        );
+      }
+    });
+    console.log(
+      `%c${
+        options?.dryRun ? 'Dry run ' : ''
+      }update ${transformedList.length} files, finished.`,
+      'color: green',
+    );
+  };
+
+  if (options?.repl) {
+    for await (const line of io.readLines(Deno.stdin)) {
+      if (line.trim().toLowerCase() === 'y') {
+        run();
+        Deno.exit();
+      } else {
+        Deno.exit();
+      }
     }
+  } else {
+    run();
+    Deno.exit();
   }
 };

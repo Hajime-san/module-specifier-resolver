@@ -1,7 +1,7 @@
 # module-specifier-resolver
 This tool transforms your local TypeScript code that gives you to rewrite file extension of `module specifier` automatically.
 
-## examples
+## transform examples
 ```ts
 export { foo } from "./foo"
 transform to
@@ -20,8 +20,14 @@ import { bar } from "./bar.(ts|tsx|d.ts)"
 - Can't keep `newline` of original source code.
 
 ## command
-- `deno task bin-dry`
-- `deno task bin`
+### remote
+- dry run
+  - `deno run --allow-env --allow-read https://deno.land/x/module_specifier_resolver@1.0.1/mod.ts -b=./src -c=./tsconfig.json -d`
+- transform
+ - `deno run --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@1.0.1/mod.ts -b=./src -c=./tsconfig.json -r`
+### local
+- `deno task run-dry`
+- `deno task run`
 
 ### arguments
 | key | description | type | default |
@@ -29,9 +35,10 @@ import { bar } from "./bar.(ts|tsx|d.ts)"
 | -b | local of base directory | `string` | `./` |
 | -c  | local of base `tsconfig.json` | `string` | `./tsconfig.json` |
 | -d  | dry run | `boolean` | `false` |
+| -r  | enable repl interface | `boolean` | `false` |
 
 ## tips
-After you ran `bin.ts`, you should run `npx tsc --noEmit` due to check correctness of transformation by this tool.
+After you ran `mod.ts`, you should run `npx tsc --noEmit` due to check correctness of transformation by this tool.
 - `tsconfig.json` example
 ```json
 {
