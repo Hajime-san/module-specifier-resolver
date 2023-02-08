@@ -1,4 +1,4 @@
-import { path, ts, walk } from './dev_deps.ts';
+import { cli, path, ts, walk } from './dev_deps.ts';
 import { relativeFilePath } from './path.ts';
 
 type NodeLike = ts.Node | ts.Expression;
@@ -150,23 +150,40 @@ export const transform = (args: {
   );
 };
 
+const flags = cli.parse(Deno.args, {
+  string: ['b', 'c'],
+});
+
 const main = async (args: {
-  basePath: string;
+  basePath?: string;
   options?: {
     tsConfigPath?: string;
   };
+} = {
+  basePath: flags.b,
+  options: {
+    tsConfigPath: flags.c,
+  },
 }) => {
   const { basePath, options } = args;
+  const _basePath = basePath ?? './';
+  const tsConfigPath = options?.tsConfigPath ?? './tsconfig.json';
+  const match = [/\.js$/, /\.mjs$/, /\.ts$/, /\.mts$/, /\.jsx$/, /\.tsx$/];
   const decoder = new TextDecoder('utf-8');
-  const tsConfigJson = await Deno.readFile(options?.tsConfigPath ?? '.');
+  const tsConfigJson = await Deno.readFile(tsConfigPath);
   const tsConfigObject = ts.parseJsonConfigFileContent(
     JSON.parse(decoder.decode(tsConfigJson)),
     ts.sys,
-    basePath,
+    _basePath,
   );
   const printer = ts.createPrinter();
 
-  for await (const entry of walk(basePath)) {
+  const transformed: Array<{
+    path: string;
+    result: string;
+  }> = [];
+
+  for await (const entry of walk(_basePath, { match })) {
     if (entry.isFile) {
       const targetPath = entry.path;
       const currentFileAbsPath = path.resolve(targetPath);
@@ -195,15 +212,21 @@ const main = async (args: {
         tsConfigObject,
         printer,
       });
+      transformed.push({
+        path: currentFileAbsPath,
+        result,
+      });
       console.log(`file: ${currentFileAbsPath}`);
       console.log(`%c${result}`, 'color: green');
     }
   }
+
+  if (transformed.length > 0) {
+    console.log(
+      `%ctransform target ${transformed.length} files found.`,
+      'color: yellow',
+    );
+  }
 };
 
-await main({
-  basePath: './examples/repo/src',
-  options: {
-    tsConfigPath: './examples/repo/tsconfig.json',
-  },
-});
+await main();
