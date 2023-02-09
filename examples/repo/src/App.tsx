@@ -7,7 +7,7 @@ import { ComponentC } from './ComponentC';
 import style from './style.css';
 import './sideEffect';
 
-const str = '😎'
+const str = '😎';
 
 // a comment
 createRoot(document.getElementById('root') as HTMLElement)
