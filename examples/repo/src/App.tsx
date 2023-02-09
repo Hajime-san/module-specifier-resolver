@@ -7,6 +7,8 @@ import { ComponentC } from './ComponentC';
 import style from './style.css';
 import './sideEffect';
 
+const str = '😎';
+
 // a comment
 createRoot(document.getElementById('root') as HTMLElement)
   .render(
@@ -14,5 +16,6 @@ createRoot(document.getElementById('root') as HTMLElement)
       <ComponentA />
       <ComponentB />
       <ComponentC />
+      <p>{str}</p>
     </React.StrictMode>,
   );

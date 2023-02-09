@@ -1,5 +1,6 @@
 import { cli, io, path, ts, walk } from './dev_deps.ts';
 import { relativeFilePath } from './path.ts';
+import { hasUnicodeStr, unescapeUnicodeStr } from './str.ts';
 
 type NodeLike = ts.Node | ts.Expression;
 
@@ -147,11 +148,13 @@ export const transform = (args: {
     transformeModuleSpecifier(imports),
   ], tsConfigObject.options);
 
-  return printer.printNode(
+  const result = printer.printNode(
     ts.EmitHint.Unspecified,
     transformationResult.transformed[0],
     ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
   );
+  // unescape unicode text
+  return hasUnicodeStr(result) ? unescapeUnicodeStr(result) : result;
 };
 
 const flags = cli.parse(Deno.args, {
@@ -175,9 +178,10 @@ export const main = async (args: {
   },
 }) => {
   const { basePath, options } = args;
-  const _basePath = basePath ?? './';
+  const _basePath = basePath ?? '.';
   const tsConfigPath = options?.tsConfigPath ?? './tsconfig.json';
   const match = [/\.js$/, /\.mjs$/, /\.ts$/, /\.mts$/, /\.jsx$/, /\.tsx$/];
+  const skip = [/node_modules/];
   const decoder = new TextDecoder('utf-8');
   const tsConfigJson = await Deno.readFile(tsConfigPath);
   const tsConfigObject = ts.parseJsonConfigFileContent(
@@ -192,7 +196,7 @@ export const main = async (args: {
     result: string;
   }> = [];
 
-  for await (const entry of walk(_basePath, { match })) {
+  for await (const entry of walk(_basePath, { match, skip })) {
     if (entry.isFile) {
       const targetPath = entry.path;
       const currentFileAbsPath = path.resolve(targetPath);
