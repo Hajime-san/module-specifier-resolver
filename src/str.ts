@@ -1,4 +1,4 @@
-import { fs, ts } from './dev_deps.ts';
+import { fs, ts } from './deps.ts';
 
 export const hasUnicodeStr = (str: string): boolean => {
   return /\\u.{4}/gi.test(str);

@@ -1,4 +1,4 @@
-import { cli, io, path, ts, walk } from './dev_deps.ts';
+import { cli, io, path, ts, walk } from './deps.ts';
 import { relativeFilePath } from './path.ts';
 import {
   hasUnicodeStr,
