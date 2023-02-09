@@ -181,6 +181,7 @@ export const main = async (args: {
   const _basePath = basePath ?? '.';
   const tsConfigPath = options?.tsConfigPath ?? './tsconfig.json';
   const match = [/\.js$/, /\.mjs$/, /\.ts$/, /\.mts$/, /\.jsx$/, /\.tsx$/];
+  const skip = [/node_modules/];
   const decoder = new TextDecoder('utf-8');
   const tsConfigJson = await Deno.readFile(tsConfigPath);
   const tsConfigObject = ts.parseJsonConfigFileContent(
@@ -195,7 +196,7 @@ export const main = async (args: {
     result: string;
   }> = [];
 
-  for await (const entry of walk(_basePath, { match })) {
+  for await (const entry of walk(_basePath, { match, skip })) {
     if (entry.isFile) {
       const targetPath = entry.path;
       const currentFileAbsPath = path.resolve(targetPath);
