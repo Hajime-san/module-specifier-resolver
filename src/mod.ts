@@ -239,43 +239,55 @@ export const main = async (args: {
     `%ctransform target ${transformedList.length} files found.`,
     'color: yellow',
   );
-  console.log(
-    `%cAre you sure complement the extension of module specifier to files? (y/n)`,
-    'color: yellow',
-  );
-  const run = () => {
+  const writeFiles = async (): Promise<void> => {
     const encoder = new TextEncoder();
-    transformedList.forEach(async (transformed) => {
-      const { path, result } = transformed;
-      if (options?.dryRun) {
-        console.log(`file: ${path}`);
-        console.log(`%c${result}`, 'color: green');
-      } else {
-        await Deno.writeFile(
-          path,
-          encoder.encode(result),
-        );
-      }
+    await Promise.all(transformedList.map((transformed) => {
+      return new Promise((resolve, reject) => {
+        const { path, result } = transformed;
+        if (options?.dryRun) {
+          console.log(`file: ${path}`);
+          console.log(`%c${result}`, 'color: green');
+          resolve(() => {});
+        } else {
+          try {
+            resolve(
+              Deno.writeFile(
+                path,
+                encoder.encode(result),
+              ).then(),
+            );
+          } catch (error) {
+            reject(error);
+          }
+        }
+      });
+    })).then(() => {
+      console.log(
+        `%c${
+          options?.dryRun ? 'Dry run ' : ''
+        }update ${transformedList.length} files, finished.`,
+        'color: green',
+      );
+    }).catch((error) => {
+      throw new Error(error);
     });
-    console.log(
-      `%c${
-        options?.dryRun ? 'Dry run ' : ''
-      }update ${transformedList.length} files, finished.`,
-      'color: green',
-    );
   };
 
   if (options?.repl) {
+    console.log(
+      `%cAre you sure complement the extension of module specifier to files? (y/n)`,
+      'color: yellow',
+    );
     for await (const line of io.readLines(Deno.stdin)) {
       if (line.trim().toLowerCase() === 'y') {
-        run();
+        await writeFiles();
         Deno.exit();
       } else {
         Deno.exit();
       }
     }
   } else {
-    run();
+    await writeFiles();
     Deno.exit();
   }
 };
