@@ -178,7 +178,7 @@ export const main = async (args: {
   },
 }) => {
   const { basePath, options } = args;
-  const _basePath = basePath ?? './';
+  const _basePath = basePath ?? '.';
   const tsConfigPath = options?.tsConfigPath ?? './tsconfig.json';
   const match = [/\.js$/, /\.mjs$/, /\.ts$/, /\.mts$/, /\.jsx$/, /\.tsx$/];
   const decoder = new TextDecoder('utf-8');
