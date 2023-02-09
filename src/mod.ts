@@ -1,6 +1,11 @@
 import { cli, io, path, ts, walk } from './dev_deps.ts';
 import { relativeFilePath } from './path.ts';
-import { hasUnicodeStr, unescapeUnicodeStr } from './str.ts';
+import {
+  hasUnicodeStr,
+  preserveNewLine,
+  restoreNewLine,
+  unescapeUnicodeStr,
+} from './str.ts';
 
 type NodeLike = ts.Node | ts.Expression;
 
@@ -148,13 +153,14 @@ export const transform = (args: {
     transformeModuleSpecifier(imports),
   ], tsConfigObject.options);
 
-  const result = printer.printNode(
+  const printed = printer.printNode(
     ts.EmitHint.Unspecified,
     transformationResult.transformed[0],
     ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
   );
   // unescape unicode text
-  return hasUnicodeStr(result) ? unescapeUnicodeStr(result) : result;
+  const result = hasUnicodeStr(printed) ? unescapeUnicodeStr(printed) : printed;
+  return restoreNewLine(result, tsConfigObject.options.newLine);
 };
 
 const flags = cli.parse(Deno.args, {
@@ -200,9 +206,10 @@ export const main = async (args: {
     if (entry.isFile) {
       const targetPath = entry.path;
       const currentFileAbsPath = path.resolve(targetPath);
-      const fileContent = decoder.decode(
+      const fileContent = preserveNewLine(decoder.decode(
         await Deno.readFile(currentFileAbsPath),
-      );
+      ));
+
       const { importedFiles } = ts.preProcessFile(fileContent, true, true);
 
       if (importedFiles.length === 0) continue;
