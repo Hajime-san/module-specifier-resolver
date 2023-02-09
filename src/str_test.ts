@@ -1,6 +1,7 @@
 import { asserts } from './dev_deps.ts';
 import {
   hasUnicodeStr,
+  NEW_LINE,
   preserveNewLine,
   restoreNewLine,
   unescapeUnicodeStr,
@@ -19,13 +20,13 @@ Deno.test('unescapeUnicodeStr', () => {
 Deno.test('preserveNewLine', () => {
   assertEquals(
     preserveNewLine(`import React from 'react';\n`),
-    `import React from 'react';\n/*_PRESERVE_NEWLINE_|`,
+    `import React from 'react';${NEW_LINE}`,
   );
 });
 
 Deno.test('restoreNewLine', () => {
   assertEquals(
-    restoreNewLine(`import React from 'react';\n/*_PRESERVE_NEWLINE_|`),
+    restoreNewLine(`import React from 'react';${NEW_LINE}`),
     `import React from 'react';\n`,
   );
 });

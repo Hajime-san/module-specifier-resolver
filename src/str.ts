@@ -13,7 +13,7 @@ export const unescapeUnicodeStr = (str: string): string => {
   return unescape(str.replace(/\\u/g, '%u'));
 };
 
-const NEW_LINE = '\n/*_PRESERVE_NEWLINE_|';
+export const NEW_LINE = '\n/*_PRESERVE_NEWLINE_|';
 
 /**
  * Keep newline to be filled with `NEW_LINE` text before transform AST.
