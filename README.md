@@ -23,9 +23,9 @@ import { bar } from "./bar.(ts|tsx|d.ts)"
 ## command
 ### remote
 - dry run
-  - `deno run --unstable --allow-env --allow-read https://deno.land/x/module_specifier_resolver@v1.0.5/bin.ts -b=./src -c=./tsconfig.json -d`
+  - `deno run --unstable --allow-env --allow-read https://deno.land/x/module_specifier_resolver@v1.0.6/bin.ts -b=./src -c=./tsconfig.json -d`
 - transform
-  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.5/bin.ts -b=./src -c=./tsconfig.json -r`
+  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.6/bin.ts -b=./src -c=./tsconfig.json -r`
 ### local
 - `deno task run-dry`
 - `deno task run`
@@ -33,7 +33,7 @@ import { bar } from "./bar.(ts|tsx|d.ts)"
 ### arguments
 | key | description | type | default |
 |-----|-----|-----|-----|
-| -b | local of base directory | `string` | `./` |
+| -b | local of base directory | `string` | `.` |
 | -c  | local of base `tsconfig.json` | `string` | `./tsconfig.json` |
 | -d  | dry run | `boolean` | `false` |
 | -r  | enable repl interface | `boolean` | `false` |
