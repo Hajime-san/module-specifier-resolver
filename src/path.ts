@@ -1,4 +1,4 @@
-import { path } from './dev_deps.ts';
+import { path } from './deps.ts';
 
 export const getLCS = (a: string, b: string): string => {
   return a.length === 0 || b.startsWith(a) ? a : getLCS(a.slice(0, -1), b);

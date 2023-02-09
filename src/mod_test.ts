@@ -1,4 +1,5 @@
-import { asserts, ts } from './dev_deps.ts';
+import { asserts } from './dev_deps.ts';
+import { ts } from './deps.ts';
 import { getModuleSpecifier, isTokenObject, transform } from './mod.ts';
 import {
   externalLibImportDeclaration,

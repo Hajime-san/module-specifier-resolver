@@ -1,4 +1,4 @@
-import { ts } from '../../dev_deps.ts';
+import { ts } from '../../deps.ts';
 
 const localSourceImportDeclaration = ts.factory.createImportDeclaration(
   undefined,
