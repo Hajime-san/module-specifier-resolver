@@ -1,5 +1,6 @@
 import { cli, io, path, ts, walk } from './dev_deps.ts';
 import { relativeFilePath } from './path.ts';
+import { hasUnicodeStr, unescapeUnicodeStr } from './str.ts';
 
 type NodeLike = ts.Node | ts.Expression;
 
@@ -147,11 +148,13 @@ export const transform = (args: {
     transformeModuleSpecifier(imports),
   ], tsConfigObject.options);
 
-  return printer.printNode(
+  const result = printer.printNode(
     ts.EmitHint.Unspecified,
     transformationResult.transformed[0],
     ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
   );
+  // unescape unicode text
+  return hasUnicodeStr(result) ? unescapeUnicodeStr(result) : result;
 };
 
 const flags = cli.parse(Deno.args, {

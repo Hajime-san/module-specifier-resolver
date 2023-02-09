@@ -50,7 +50,8 @@ Deno.test('transform', async (t) => {
       transform({
         sourceFile: ts.createSourceFile(
           './src/App.tsx',
-          `import { ComponentA } from './ComponentA';`,
+          `import { ComponentA } from './ComponentA';\n` +
+            `const str = '😎';\n`,
           ts.ScriptTarget.ESNext,
         ),
         imports: [
@@ -59,7 +60,8 @@ Deno.test('transform', async (t) => {
         tsConfigObject: tsConfigMockObject,
         printer: ts.createPrinter(),
       }),
-      `import { ComponentA } from "./ComponentA.tsx";\n`,
+      `import { ComponentA } from "./ComponentA.tsx";\n` +
+        `const str = "😎";\n`,
     );
   });
 });
