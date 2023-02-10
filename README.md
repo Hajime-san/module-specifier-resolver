@@ -48,7 +48,7 @@ After you ran `bin.ts`, you should run `npx tsc --noEmit` due to check correctne
   ```json
   {
     "compilerOptions": {
-      "moduleResolution": "nodenext",
+      "moduleResolution": "bundler",
       "allowImportingTsExtensions": true,
       "noEmit": true
     }
