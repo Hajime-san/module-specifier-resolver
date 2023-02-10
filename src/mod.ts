@@ -2,8 +2,6 @@ import { cli, io, path, ts, walk } from './deps.ts';
 import { relativeFilePath } from './path.ts';
 import {
   hasUnicodeStr,
-  preserveNewLine,
-  restoreNewLine,
   unescapeUnicodeStr,
 } from './str.ts';
 
@@ -160,7 +158,7 @@ export const transform = (args: {
   );
   // unescape unicode text
   const result = hasUnicodeStr(printed) ? unescapeUnicodeStr(printed) : printed;
-  return restoreNewLine(result, tsConfigObject.options.newLine);
+  return result;
 };
 
 const flags = cli.parse(Deno.args, {
@@ -206,9 +204,9 @@ export const main = async (args: {
     if (entry.isFile) {
       const targetPath = entry.path;
       const currentFileAbsPath = path.resolve(targetPath);
-      const fileContent = preserveNewLine(decoder.decode(
+      const fileContent = decoder.decode(
         await Deno.readFile(currentFileAbsPath),
-      ));
+      );
 
       const { importedFiles } = ts.preProcessFile(fileContent, true, true);
 
