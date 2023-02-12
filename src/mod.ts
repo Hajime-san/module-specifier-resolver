@@ -160,7 +160,7 @@ export const transform = (args: {
   );
   // unescape unicode text
   const result = hasUnicodeStr(printed) ? unescapeUnicodeStr(printed) : printed;
-  return restoreNewLine(result);
+  return restoreNewLine(result, tsConfigObject.options.newLine);
 };
 
 const flags = cli.parse(Deno.args, {
