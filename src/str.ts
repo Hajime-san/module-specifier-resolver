@@ -13,7 +13,7 @@ export const unescapeUnicodeStr = (str: string): string => {
   return unescape(str.replace(/\\u/g, '%u'));
 };
 
-export const NEW_LINE = '\n/*_PRESERVE_NEWLINE_|';
+export const NEW_LINE = '\n/* _PRESERVE_NEWLINE_ */';
 
 /**
  * Keep newline to be filled with `NEW_LINE` text before transform AST.
@@ -21,7 +21,7 @@ export const NEW_LINE = '\n/*_PRESERVE_NEWLINE_|';
  * @returns
  */
 export const preserveNewLine = (str: string) => {
-  return str.replaceAll(/(?:\r?\n)/gm, NEW_LINE);
+  return str.replace(/(\r|\n)\n/g, NEW_LINE);
 };
 
 /**
@@ -32,9 +32,9 @@ export const preserveNewLine = (str: string) => {
 export const restoreNewLine = (str: string, newLineConfig?: ts.NewLineKind) => {
   const newLineStr = newLineConfig
     // Prioritize tsconfig newLine option, otherwise it belongs to os.
-    ? newLineConfig === ts.NewLineKind.LineFeed ? fs.EOL.CRLF : fs.EOL.LF
+    ? newLineConfig === ts.NewLineKind.LineFeed ? fs.EOL.LF : fs.EOL.CRLF
     : Deno.build.os === 'windows'
     ? fs.EOL.CRLF
     : fs.EOL.LF;
-  return str.replaceAll(NEW_LINE, newLineStr).trimEnd() + newLineStr;
+  return str.replace(/\/\* _PRESERVE_NEWLINE_ \*\//g, newLineStr);
 };

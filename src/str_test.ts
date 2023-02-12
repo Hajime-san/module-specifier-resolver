@@ -19,7 +19,7 @@ Deno.test('unescapeUnicodeStr', () => {
 
 Deno.test('preserveNewLine', () => {
   assertEquals(
-    preserveNewLine(`import React from 'react';\n`),
+    preserveNewLine(`import React from 'react';\n\n`),
     `import React from 'react';${NEW_LINE}`,
   );
 });
@@ -27,6 +27,6 @@ Deno.test('preserveNewLine', () => {
 Deno.test('restoreNewLine', () => {
   assertEquals(
     restoreNewLine(`import React from 'react';${NEW_LINE}`),
-    `import React from 'react';\n`,
+    `import React from 'react';\n\n`,
   );
 });
