@@ -53,10 +53,12 @@
     "https://deno.land/std@0.177.0/types.d.ts": "220ed56662a0bd393ba5d124aa6ae2ad36a00d2fcbc0e8666a65f4606aaa9784"
   },
   "npm": {
-    "specifiers": { "typescript@beta": "typescript@5.0.0-beta" },
+    "specifiers": {
+      "typescript@5.0.3": "typescript@5.0.3"
+    },
     "packages": {
-      "typescript@5.0.0-beta": {
-        "integrity": "sha512-+SSabbSXG5mtF+QGdV9uXXt9Saq1cSyI6hSG7znhaLoquleJpnmfkwSxFngK9c2fWWi1W/263TuzXQOsIcdjjA==",
+      "typescript@5.0.3": {
+        "integrity": "sha512-xv8mOEDnigb/tN9PSMTwSEqAnUvkoXMQlicOb0IUVDBSQCgBSaAAROUZYy2IcUy5qU6XajK5jjjO7TMWqBTKZA==",
         "dependencies": {}
       }
     }
