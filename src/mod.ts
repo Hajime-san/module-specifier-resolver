@@ -90,56 +90,55 @@ const resolvedModules = (args: {
     });
 };
 
-const transformeModuleSpecifier = (
+const transformModuleSpecifier = (
   imports: ReturnType<typeof resolvedModules>,
 ) => {
-  const _transformeModuleSpecifier =
-    (context: ts.TransformationContext) => (rootNode: ts.Node) => {
-      const visit = (node: ts.Node): ts.Node => {
-        const newNode = ts.visitEachChild(node, visit, context);
+  return (context: ts.TransformationContext) => (rootNode: ts.Node) => {
+    const visit = (node: ts.Node): ts.Node => {
+      const newNode = ts.visitEachChild(node, visit, context);
 
-        // Transform "aggregating modules"
-        //
-        // export { foo } from "./foo"
-        // to
-        // export { foo } from "./foo.(ts|tsx|d.ts)"
-        if (ts.isExportDeclaration(newNode)) {
-          const { moduleSpecifier, node } = getModuleSpecifier({
-            node: newNode,
-            imports,
-          });
-          return context.factory.createExportDeclaration(
-            node.modifiers,
-            false,
-            node.exportClause,
-            context.factory.createStringLiteral(moduleSpecifier),
-            node.assertClause,
-          );
-        }
-        // Transform "static import"
-        //
-        // import { bar } from "./bar"
-        // to
-        // import { bar } from "./bar.(ts|tsx|d.ts)"
-        if (ts.isImportDeclaration(newNode)) {
-          const { moduleSpecifier, node } = getModuleSpecifier({
-            node: newNode,
-            imports,
-          });
-          return context.factory.createImportDeclaration(
-            node.modifiers,
-            node.importClause,
-            context.factory.createStringLiteral(moduleSpecifier),
-            node.assertClause,
-          );
-        }
-        return newNode;
-      };
-
-      return ts.visitNode(rootNode, visit);
+      // Transform "aggregating modules"
+      //
+      // export { foo } from "./foo"
+      // to
+      // export { foo } from "./foo.(ts|tsx|d.ts)"
+      if (ts.isExportDeclaration(newNode)) {
+        const { moduleSpecifier, node } = getModuleSpecifier({
+          node: newNode,
+          imports,
+        });
+        return context.factory.updateExportDeclaration(
+          node,
+          node.modifiers,
+          false,
+          node.exportClause,
+          context.factory.createStringLiteral(moduleSpecifier),
+          node.assertClause,
+        );
+      }
+      // Transform "static import"
+      //
+      // import { bar } from "./bar"
+      // to
+      // import { bar } from "./bar.(ts|tsx|d.ts)"
+      if (ts.isImportDeclaration(newNode)) {
+        const { moduleSpecifier, node } = getModuleSpecifier({
+          node: newNode,
+          imports,
+        });
+        return context.factory.updateImportDeclaration(
+          node,
+          node.modifiers,
+          node.importClause,
+          context.factory.createStringLiteral(moduleSpecifier),
+          node.assertClause,
+        );
+      }
+      return newNode;
     };
 
-  return _transformeModuleSpecifier;
+    return ts.visitNode(rootNode, visit);
+  };
 };
 
 export const transform = (args: {
@@ -150,7 +149,7 @@ export const transform = (args: {
 }) => {
   const { sourceFile, imports, tsConfigObject, printer } = args;
   const transformationResult = ts.transform(sourceFile, [
-    transformeModuleSpecifier(imports),
+    transformModuleSpecifier(imports),
   ], tsConfigObject.options);
 
   const printed = printer.printNode(
