@@ -1,4 +1,5 @@
 import React from 'react';
+// comment
 import { createRoot } from 'react-dom/client';
 import { ComponentA } from './ComponentA';
 import { ComponentB } from './ComponentB';
