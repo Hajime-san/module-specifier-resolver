@@ -29,9 +29,19 @@ export const relativeFilePath = (from: string, to: string): string => {
     }
   }
 
-  // to is same root of sub directory
   if (fromStrArray.length < toStrArray.length) {
-    return fromCurrentDir;
+    // /usr/local
+    const commonStr = getLCS(_from.dir, _to.dir);
+    const commonStrL = commonStr.split('/').filter((v) => v !== '').length;
+    // /usr/local/bin/**/*.ts
+    const fromNextDirNameOfCommon = fromStrArray[commonStrL];
+    if (typeof fromNextDirNameOfCommon === 'undefined') {
+      // to is same root of sub directory
+      return fromCurrentDir;
+    } else {
+      // to is different root of sub directory
+      return base;
+    }
   }
   // to is parent directory
   if (fromStrArray.length > toStrArray.length) {
