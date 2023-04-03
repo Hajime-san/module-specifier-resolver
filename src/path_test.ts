@@ -22,6 +22,13 @@ Deno.test('relativeFilePath', async (t) => {
       ),
       '../../conf/tmp/foo.ts',
     );
+    assertEquals(
+      relativeFilePath(
+        '/usr/local/bin/tmp/bar.ts',
+        '/usr/local/conf/tmp/hoge/foo.ts',
+      ),
+      '../../conf/tmp/hoge/foo.ts',
+    );
   });
 
   await t.step('same root of sub directory', () => {
