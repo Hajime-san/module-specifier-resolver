@@ -249,39 +249,76 @@ export const main = async (args: {
     `%ctransform target ${transformedList.length} files found.`,
     'color: yellow',
   );
+  const encoder = new TextEncoder();
+
   const writeFiles = async (): Promise<void> => {
-    const encoder = new TextEncoder();
     await Promise.all(transformedList.map((transformed) => {
       return new Promise((resolve, reject) => {
         const { path, result } = transformed;
-        if (options?.dryRun) {
-          console.log(`file: ${path}`);
-          console.log(`%c${result}`, 'color: green');
-          resolve(() => {});
-        } else {
-          try {
-            resolve(
-              Deno.writeFile(
-                path,
-                encoder.encode(result),
-              ).then(),
-            );
-          } catch (error) {
-            reject(error);
-          }
+        try {
+          resolve(
+            Deno.writeFile(
+              path,
+              encoder.encode(result),
+            ).then(),
+          );
+        } catch (error) {
+          reject(error);
         }
       });
     })).then(() => {
       console.log(
-        `%c${
-          options?.dryRun ? 'Dry run ' : ''
-        }update ${transformedList.length} files, finished.`,
+        `%cupdate ${transformedList.length} files, finished.`,
         'color: green',
       );
     }).catch((error) => {
       throw new Error(error);
     });
   };
+
+  const LOG_FILE_NAME = 'module-specifier-resolver.log';
+
+  const writeLog = async (): Promise<void> => {
+    try {
+      await Deno.remove(LOG_FILE_NAME);
+    } catch (_) {}
+    await Promise.all(transformedList.map((transformed) => {
+      return new Promise((resolve, reject) => {
+        const { path, result } = transformed;
+        try {
+          resolve(
+            Deno.writeFile(
+              LOG_FILE_NAME,
+              encoder.encode(
+                `file: ${path}
+${result}
+
+`,
+              ),
+              {
+                append: true,
+              },
+            ).then(),
+          );
+        } catch (error) {
+          reject(error);
+        }
+      });
+    })).then(() => {
+      console.log(
+        `%cDry run: ${transformedList.length} files, finished.
+${LOG_FILE_NAME}`,
+        'color: green',
+      );
+    }).catch((error) => {
+      throw new Error(error);
+    });
+  };
+
+  if (options?.dryRun) {
+    await writeLog();
+    Deno.exit();
+  }
 
   if (options?.repl) {
     console.log(
