@@ -20,6 +20,27 @@ export const isTokenObject = (node: NodeLike): node is TokenObject => {
   return (node as unknown as Record<string, unknown>).hasOwnProperty('text');
 };
 
+export const resolveModuleName = (args: {
+  fileName: string;
+  currentFileAbsPath: string;
+  tsConfigObject: ts.ParsedCommandLine;
+}) => {
+  const { fileName, currentFileAbsPath, tsConfigObject } = args;
+  return ts.resolveModuleName(
+    fileName,
+    currentFileAbsPath,
+    {
+      ...tsConfigObject.options,
+      // Override module resolution to resolve module path correctly
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+    },
+    ts.sys,
+    undefined,
+    undefined,
+    ts.ModuleKind.ESNext,
+  );
+};
+
 export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
   node: T;
   imports: ReturnType<typeof resolvedModules>;
@@ -57,31 +78,24 @@ const resolvedModules = (args: {
   resolved: string;
 }> => {
   const { importedFiles, currentFileAbsPath, tsConfigObject } = args;
-  const _resolveModuleName = (fileName: string) => {
-    return ts.resolveModuleName(
-      fileName,
-      currentFileAbsPath,
-      {
-        ...tsConfigObject.options,
-        // Override module resolution to resolve module path correctly
-        moduleResolution: ts.ModuleResolutionKind.Bundler,
-      },
-      ts.sys,
-      undefined,
-      undefined,
-      ts.ModuleKind.ESNext,
-    );
-  };
   return importedFiles
     .filter(({ fileName }) => {
-      const { resolvedModule } = _resolveModuleName(fileName);
+      const { resolvedModule } = resolveModuleName({
+        fileName,
+        currentFileAbsPath,
+        tsConfigObject,
+      });
       // ignore node_modules
       return !resolvedModule?.isExternalLibraryImport &&
         // ignore falsy resolvedFileName
         resolvedModule?.resolvedFileName;
     })
     .map(({ fileName }) => {
-      const { resolvedModule } = _resolveModuleName(fileName);
+      const { resolvedModule } = resolveModuleName({
+        fileName,
+        currentFileAbsPath,
+        tsConfigObject,
+      });
       const importLoc = resolvedModule!.resolvedFileName;
       return {
         original: fileName,

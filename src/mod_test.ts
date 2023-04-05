@@ -1,18 +1,78 @@
 import { asserts } from './dev_deps.ts';
-import { ts } from './deps.ts';
-import { getModuleSpecifier, isTokenObject, transform } from './mod.ts';
+import { path, ts } from './deps.ts';
+import {
+  getModuleSpecifier,
+  isTokenObject,
+  resolveModuleName,
+  transform,
+} from './mod.ts';
 import {
   externalLibImportDeclaration,
   localSourceImportDeclaration,
   tsConfigMockObject,
 } from './tests/fixture/mod.ts';
 const { assertEquals } = asserts;
+const __dirname = path.dirname(path.fromFileUrl(import.meta.url));
 
 Deno.test('isTokenObject', () => {
   assertEquals(
     isTokenObject(localSourceImportDeclaration.moduleSpecifier),
     true,
   );
+});
+
+Deno.test('resolveModuleName', async (t) => {
+  await t.step('local module', () => {
+    assertEquals(
+      resolveModuleName({
+        fileName: './ComponentA',
+        currentFileAbsPath: path.resolve(...[
+          __dirname,
+          '../examples/repo/src/App.tsx',
+        ]),
+        tsConfigObject: tsConfigMockObject,
+      }).resolvedModule,
+      {
+        resolvedFileName: path.resolve(...[
+          __dirname,
+          '../examples/repo/src/ComponentA/index.ts',
+        ]),
+        originalPath: undefined,
+        extension: '.ts',
+        isExternalLibraryImport: false,
+        packageId: undefined,
+        resolvedUsingTsExtension: false,
+      } as ReturnType<typeof resolveModuleName>['resolvedModule'],
+    );
+  });
+
+  await t.step('node_module', () => {
+    assertEquals(
+      resolveModuleName({
+        fileName: 'react',
+        currentFileAbsPath: path.resolve(...[
+          __dirname,
+          '../examples/repo/src/App.tsx',
+        ]),
+        tsConfigObject: tsConfigMockObject,
+      }).resolvedModule,
+      {
+        resolvedFileName: path.resolve(...[
+          __dirname,
+          '../examples/repo/node_modules/@types/react/index.d.ts',
+        ]),
+        originalPath: undefined,
+        extension: '.d.ts',
+        isExternalLibraryImport: true,
+        packageId: {
+          name: '@types/react',
+          subModuleName: 'index.d.ts',
+          version: '18.0.26',
+        },
+        resolvedUsingTsExtension: false,
+      } as ReturnType<typeof resolveModuleName>['resolvedModule'],
+    );
+  });
 });
 
 Deno.test('getModuleSpecifier', async (t) => {
