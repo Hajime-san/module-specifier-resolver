@@ -60,15 +60,18 @@ export const hasShouldResolveImportedFiles = (args: {
   return true;
 };
 
+type ModuleSpecifierReturnType<T extends HasModuleSpecifierNode> = T extends
+  ts.ImportDeclaration ? string : string | undefined;
+
 export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
   node: T;
   imports: ReturnType<typeof resolvedModules>;
 }): {
-  moduleSpecifier: string;
+  moduleSpecifier: ModuleSpecifierReturnType<T>;
   node: T;
 } => {
   const { node, imports } = args;
-  let moduleSpecifier: string | undefined;
+  let moduleSpecifier: ModuleSpecifierReturnType<T>;
   if (node.moduleSpecifier && isTokenObject(node.moduleSpecifier)) {
     const _moduleSpecifier = node.moduleSpecifier;
     moduleSpecifier = imports.find((v) =>
@@ -76,13 +79,8 @@ export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
     )?.resolved ??
       _moduleSpecifier.text;
   }
-
-  if (typeof moduleSpecifier === 'undefined') {
-    throw new Error(
-      'failed to get module specifier from TypeScript AST Nodes.',
-    );
-  }
   return {
+    // @ts-ignore Variable 'X' is used before being assigned. deno-ts(2454)
     moduleSpecifier,
     node,
   };

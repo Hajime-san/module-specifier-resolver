@@ -22,9 +22,11 @@ const transformModuleSpecifier = (
         return context.factory.updateExportDeclaration(
           node,
           node.modifiers,
-          false,
+          node.isTypeOnly,
           node.exportClause,
-          context.factory.createStringLiteral(moduleSpecifier),
+          moduleSpecifier
+            ? context.factory.createStringLiteral(moduleSpecifier)
+            : undefined,
           node.assertClause,
         );
       }
