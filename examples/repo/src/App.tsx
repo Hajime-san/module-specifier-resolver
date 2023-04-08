@@ -5,6 +5,7 @@ import { ComponentA } from './ComponentA';
 import { ComponentB } from './ComponentB';
 import { _ComponentC } from './ComponentC';
 import { ComponentC } from './ComponentC';
+import { ComponentD } from './ComponentD';
 import style from './style.css';
 import './sideEffect';
 
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root') as HTMLElement)
       <ComponentA />
       <ComponentB />
       <ComponentC />
+      <ComponentD />
       <p>{str}</p>
     </React.StrictMode>,
   );
