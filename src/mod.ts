@@ -41,6 +41,31 @@ export const resolveModuleName = (args: {
   );
 };
 
+export const hasShouldResolveImportedFiles = (args: {
+  importedFiles: Array<ts.FileReference>;
+  currentFileAbsPath: string;
+  tsConfigObject: ts.ParsedCommandLine;
+}): boolean => {
+  const { importedFiles, currentFileAbsPath, tsConfigObject } = args;
+  // no imported files
+  if (importedFiles.length === 0) return false;
+  const shouldResolve = importedFiles.some(({ fileName }) => {
+    const { resolvedModule } = resolveModuleName({
+      fileName,
+      currentFileAbsPath,
+      tsConfigObject,
+    });
+    // node_modules
+    return (!resolvedModule?.isExternalLibraryImport &&
+      // falsy resolvedFileName
+      resolvedModule?.resolvedFileName) &&
+      // not has extension
+      path.extname(fileName) === '';
+  });
+  if (!shouldResolve) return false;
+  return true;
+};
+
 export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
   node: T;
   imports: ReturnType<typeof resolvedModules>;
@@ -225,7 +250,13 @@ export const main = async (args: {
 
       const { importedFiles } = ts.preProcessFile(fileContent, true, true);
 
-      if (importedFiles.length === 0) continue;
+      if (
+        !hasShouldResolveImportedFiles({
+          importedFiles,
+          currentFileAbsPath,
+          tsConfigObject,
+        })
+      ) continue;
 
       const imports = resolvedModules({
         importedFiles,

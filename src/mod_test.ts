@@ -2,6 +2,7 @@ import { asserts } from './dev_deps.ts';
 import { path, ts } from './deps.ts';
 import {
   getModuleSpecifier,
+  hasShouldResolveImportedFiles,
   isTokenObject,
   resolveModuleName,
   transform,
@@ -71,6 +72,39 @@ Deno.test('resolveModuleName', async (t) => {
         },
         resolvedUsingTsExtension: false,
       } as ReturnType<typeof resolveModuleName>['resolvedModule'],
+    );
+  });
+});
+
+Deno.test('hasShouldResolveImportedFiles', async (t) => {
+  await t.step('should resolve', () => {
+    assertEquals(
+      hasShouldResolveImportedFiles({
+        importedFiles: [{ fileName: './ComponentA', pos: 14, end: 26 }],
+        currentFileAbsPath: path.resolve(...[
+          __dirname,
+          '../examples/repo/src/App.tsx',
+        ]),
+        tsConfigObject: tsConfigMockObject,
+      }),
+      true,
+    );
+  });
+
+  await t.step('should not resolve', () => {
+    assertEquals(
+      hasShouldResolveImportedFiles({
+        importedFiles: [
+          { fileName: 'react', pos: 18, end: 23 },
+          { fileName: './ComponentA/index.ts', pos: 54, end: 75 },
+        ],
+        currentFileAbsPath: path.resolve(...[
+          __dirname,
+          '../examples/repo/src/ComponentD.tsx',
+        ]),
+        tsConfigObject: tsConfigMockObject,
+      }),
+      false,
     );
   });
 });
