@@ -5,6 +5,10 @@ on:
     branches-ignore:
       - main
 
+env:
+  DENO_VERSION: "1.31.1"
+  NODE_VERSION: 18
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -12,9 +16,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: cache node_modules
+        id: node_modules_cache_id
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: node-v${{ env.NODE_VERSION }}-deps-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            node-v${{ env.NODE_VERSION }}-deps-
+            node-v${{ env.NODE_VERSION }}-
+            node-v
+
+      - name: install node modules
+        run: npm ci
+        working-directory: examples/repo
+
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: "1.31.1"
+          deno-version: ${{ env.DENO_VERSION }}
 
       - name: test
         run: deno task test
