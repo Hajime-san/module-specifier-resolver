@@ -40,5 +40,12 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VERSION }}
 
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('**/deno.lock') }}
+          restore-keys: deno-
+
       - name: test
         run: deno task test
