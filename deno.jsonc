@@ -14,7 +14,7 @@
       "singleQuote": true
     },
     "files": {
-      "include": ["src", "examples"],
+      "include": ["src", "examples/repo"],
       "exclude": ["node_modules"]
     }
   }
