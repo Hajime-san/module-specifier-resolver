@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+env:
+  DENO_VERSION: "1.31.1"
+  NODE_VERSION: "18.15.0"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: cache node_modules
+        id: node_modules_cache_id
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: node-v${{ env.NODE_VERSION }}-deps-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            node-v${{ env.NODE_VERSION }}-deps-
+            node-v${{ env.NODE_VERSION }}-
+            node-v
+
+      - name: install node modules
+        run: npm ci
+        working-directory: examples/repo
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            /home/runner/.deno
+            /home/runner/.cache/deno
+          key: deno-v${{ env.DENO_VERSION }}-${{ hashFiles('**/deno.lock') }}
+          restore-keys: |
+            deno-v${{ env.DENO_VERSION }}-
+            deno-v
+
+      - name: test
+        run: deno task test

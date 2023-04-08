@@ -1,166 +1,10 @@
 import { cli, io, path, ts, walk } from './deps.ts';
-import { relativeFilePath } from './path.ts';
 import {
-  hasUnicodeStr,
-  preserveNewLine,
-  restoreNewLine,
-  unescapeUnicodeStr,
-} from './str.ts';
-
-type NodeLike = ts.Node | ts.Expression;
-
-type HasModuleSpecifierNode = ts.ImportDeclaration | ts.ExportDeclaration;
-
-type TokenObject = NodeLike & {
-  text: string;
-};
-
-export const isTokenObject = (node: NodeLike): node is TokenObject => {
-  // deno-lint-ignore no-prototype-builtins
-  return (node as unknown as Record<string, unknown>).hasOwnProperty('text');
-};
-
-export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
-  node: T;
-  imports: ReturnType<typeof resolvedModules>;
-}): {
-  moduleSpecifier: string;
-  node: T;
-} => {
-  const { node, imports } = args;
-  let moduleSpecifier: string | undefined;
-  if (node.moduleSpecifier && isTokenObject(node.moduleSpecifier)) {
-    const _moduleSpecifier = node.moduleSpecifier;
-    moduleSpecifier = imports.find((v) =>
-      v.original === _moduleSpecifier.text
-    )?.resolved ??
-      _moduleSpecifier.text;
-  }
-
-  if (typeof moduleSpecifier === 'undefined') {
-    throw new Error(
-      'failed to get module specifier from TypeScript AST Nodes.',
-    );
-  }
-  return {
-    moduleSpecifier,
-    node,
-  };
-};
-
-const resolvedModules = (args: {
-  importedFiles: ts.FileReference[];
-  currentFileAbsPath: string;
-  tsConfigObject: ts.ParsedCommandLine;
-}): Array<{
-  original: string;
-  resolved: string;
-}> => {
-  const { importedFiles, currentFileAbsPath, tsConfigObject } = args;
-  const _resolveModuleName = (fileName: string) => {
-    return ts.resolveModuleName(
-      fileName,
-      currentFileAbsPath,
-      {
-        ...tsConfigObject.options,
-        // Override module resolution to resolve module path correctly
-        moduleResolution: ts.ModuleResolutionKind.Bundler,
-      },
-      ts.sys,
-      undefined,
-      undefined,
-      ts.ModuleKind.ESNext,
-    );
-  };
-  return importedFiles
-    .filter(({ fileName }) => {
-      const { resolvedModule } = _resolveModuleName(fileName);
-      // ignore node_modules
-      return !resolvedModule?.isExternalLibraryImport &&
-        // ignore falsy resolvedFileName
-        resolvedModule?.resolvedFileName;
-    })
-    .map(({ fileName }) => {
-      const { resolvedModule } = _resolveModuleName(fileName);
-      const importLoc = resolvedModule!.resolvedFileName;
-      return {
-        original: fileName,
-        resolved: relativeFilePath(currentFileAbsPath, importLoc),
-      };
-    });
-};
-
-const transformModuleSpecifier = (
-  imports: ReturnType<typeof resolvedModules>,
-) => {
-  return (context: ts.TransformationContext) => (rootNode: ts.Node) => {
-    const visit = (node: ts.Node): ts.Node => {
-      const newNode = ts.visitEachChild(node, visit, context);
-
-      // Transform "aggregating modules"
-      //
-      // export { foo } from "./foo"
-      // to
-      // export { foo } from "./foo.(ts|tsx|d.ts)"
-      if (ts.isExportDeclaration(newNode)) {
-        const { moduleSpecifier, node } = getModuleSpecifier({
-          node: newNode,
-          imports,
-        });
-        return context.factory.updateExportDeclaration(
-          node,
-          node.modifiers,
-          false,
-          node.exportClause,
-          context.factory.createStringLiteral(moduleSpecifier),
-          node.assertClause,
-        );
-      }
-      // Transform "static import"
-      //
-      // import { bar } from "./bar"
-      // to
-      // import { bar } from "./bar.(ts|tsx|d.ts)"
-      if (ts.isImportDeclaration(newNode)) {
-        const { moduleSpecifier, node } = getModuleSpecifier({
-          node: newNode,
-          imports,
-        });
-        return context.factory.updateImportDeclaration(
-          node,
-          node.modifiers,
-          node.importClause,
-          context.factory.createStringLiteral(moduleSpecifier),
-          node.assertClause,
-        );
-      }
-      return newNode;
-    };
-
-    return ts.visitNode(rootNode, visit);
-  };
-};
-
-export const transform = (args: {
-  sourceFile: ts.SourceFile;
-  imports: ReturnType<typeof resolvedModules>;
-  tsConfigObject: ts.ParsedCommandLine;
-  printer: ts.Printer;
-}) => {
-  const { sourceFile, imports, tsConfigObject, printer } = args;
-  const transformationResult = ts.transform(sourceFile, [
-    transformModuleSpecifier(imports),
-  ], tsConfigObject.options);
-
-  const printed = printer.printNode(
-    ts.EmitHint.Unspecified,
-    transformationResult.transformed[0],
-    ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
-  );
-  // unescape unicode text
-  const result = hasUnicodeStr(printed) ? unescapeUnicodeStr(printed) : printed;
-  return restoreNewLine(result, tsConfigObject.options.newLine);
-};
+  hasShouldResolveImportedFiles,
+  resolvedModules,
+} from './resolve_util.ts';
+import { preserveNewLine } from './str.ts';
+import { transform } from './transform.ts';
 
 const flags = cli.parse(Deno.args, {
   string: ['b', 'c'],
@@ -204,23 +48,29 @@ export const main = async (args: {
   for await (const entry of walk(_basePath, { match, skip })) {
     if (entry.isFile) {
       const targetPath = entry.path;
-      const currentFileAbsPath = path.resolve(targetPath);
+      const targetFileAbsPath = path.resolve(targetPath);
       const fileContent = preserveNewLine(decoder.decode(
-        await Deno.readFile(currentFileAbsPath),
+        await Deno.readFile(targetFileAbsPath),
       ));
 
       const { importedFiles } = ts.preProcessFile(fileContent, true, true);
 
-      if (importedFiles.length === 0) continue;
+      if (
+        !hasShouldResolveImportedFiles({
+          importedFiles,
+          targetFileAbsPath,
+          tsConfigObject,
+        })
+      ) continue;
 
       const imports = resolvedModules({
         importedFiles,
-        currentFileAbsPath,
+        targetFileAbsPath,
         tsConfigObject,
       });
 
       const sourceFile = ts.createSourceFile(
-        currentFileAbsPath,
+        targetFileAbsPath,
         fileContent,
         ts.ScriptTarget.ESNext,
       );
@@ -232,7 +82,7 @@ export const main = async (args: {
         printer,
       });
       transformedList.push({
-        path: currentFileAbsPath,
+        path: targetFileAbsPath,
         result,
       });
     }
