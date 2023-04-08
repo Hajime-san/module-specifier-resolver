@@ -27,7 +27,7 @@ Deno.test('resolveModuleName', async (t) => {
     assertEquals(
       resolveModuleName({
         fileName: './ComponentA',
-        currentFileAbsPath: path.resolve(...[
+        targetFileAbsPath: path.resolve(...[
           __dirname,
           '../examples/repo/src/App.tsx',
         ]),
@@ -51,7 +51,7 @@ Deno.test('resolveModuleName', async (t) => {
     assertEquals(
       resolveModuleName({
         fileName: 'react',
-        currentFileAbsPath: path.resolve(...[
+        targetFileAbsPath: path.resolve(...[
           __dirname,
           '../examples/repo/src/App.tsx',
         ]),
@@ -81,7 +81,7 @@ Deno.test('hasShouldResolveImportedFiles', async (t) => {
     assertEquals(
       hasShouldResolveImportedFiles({
         importedFiles: [{ fileName: './ComponentA', pos: 14, end: 26 }],
-        currentFileAbsPath: path.resolve(...[
+        targetFileAbsPath: path.resolve(...[
           __dirname,
           '../examples/repo/src/App.tsx',
         ]),
@@ -98,7 +98,7 @@ Deno.test('hasShouldResolveImportedFiles', async (t) => {
           { fileName: 'react', pos: 18, end: 23 },
           { fileName: './ComponentA/index.ts', pos: 54, end: 75 },
         ],
-        currentFileAbsPath: path.resolve(...[
+        targetFileAbsPath: path.resolve(...[
           __dirname,
           '../examples/repo/src/ComponentD.tsx',
         ]),

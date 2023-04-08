@@ -22,13 +22,13 @@ export const isTokenObject = (node: NodeLike): node is TokenObject => {
 
 export const resolveModuleName = (args: {
   fileName: string;
-  currentFileAbsPath: string;
+  targetFileAbsPath: string;
   tsConfigObject: ts.ParsedCommandLine;
 }) => {
-  const { fileName, currentFileAbsPath, tsConfigObject } = args;
+  const { fileName, targetFileAbsPath, tsConfigObject } = args;
   return ts.resolveModuleName(
     fileName,
-    currentFileAbsPath,
+    targetFileAbsPath,
     {
       ...tsConfigObject.options,
       // Override module resolution to resolve module path correctly
@@ -43,16 +43,16 @@ export const resolveModuleName = (args: {
 
 export const hasShouldResolveImportedFiles = (args: {
   importedFiles: Array<ts.FileReference>;
-  currentFileAbsPath: string;
+  targetFileAbsPath: string;
   tsConfigObject: ts.ParsedCommandLine;
 }): boolean => {
-  const { importedFiles, currentFileAbsPath, tsConfigObject } = args;
+  const { importedFiles, targetFileAbsPath, tsConfigObject } = args;
   // no imported files
   if (importedFiles.length === 0) return false;
   const shouldResolve = importedFiles.some(({ fileName }) => {
     const { resolvedModule } = resolveModuleName({
       fileName,
-      currentFileAbsPath,
+      targetFileAbsPath,
       tsConfigObject,
     });
     // node_modules
@@ -96,18 +96,18 @@ export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
 
 const resolvedModules = (args: {
   importedFiles: ts.FileReference[];
-  currentFileAbsPath: string;
+  targetFileAbsPath: string;
   tsConfigObject: ts.ParsedCommandLine;
 }): Array<{
   original: string;
   resolved: string;
 }> => {
-  const { importedFiles, currentFileAbsPath, tsConfigObject } = args;
+  const { importedFiles, targetFileAbsPath, tsConfigObject } = args;
   return importedFiles
     .filter(({ fileName }) => {
       const { resolvedModule } = resolveModuleName({
         fileName,
-        currentFileAbsPath,
+        targetFileAbsPath,
         tsConfigObject,
       });
       // ignore node_modules
@@ -118,13 +118,13 @@ const resolvedModules = (args: {
     .map(({ fileName }) => {
       const { resolvedModule } = resolveModuleName({
         fileName,
-        currentFileAbsPath,
+        targetFileAbsPath,
         tsConfigObject,
       });
       const importLoc = resolvedModule!.resolvedFileName;
       return {
         original: fileName,
-        resolved: relativeFilePath(currentFileAbsPath, importLoc),
+        resolved: relativeFilePath(targetFileAbsPath, importLoc),
       };
     });
 };
@@ -243,9 +243,9 @@ export const main = async (args: {
   for await (const entry of walk(_basePath, { match, skip })) {
     if (entry.isFile) {
       const targetPath = entry.path;
-      const currentFileAbsPath = path.resolve(targetPath);
+      const targetFileAbsPath = path.resolve(targetPath);
       const fileContent = preserveNewLine(decoder.decode(
-        await Deno.readFile(currentFileAbsPath),
+        await Deno.readFile(targetFileAbsPath),
       ));
 
       const { importedFiles } = ts.preProcessFile(fileContent, true, true);
@@ -253,19 +253,19 @@ export const main = async (args: {
       if (
         !hasShouldResolveImportedFiles({
           importedFiles,
-          currentFileAbsPath,
+          targetFileAbsPath,
           tsConfigObject,
         })
       ) continue;
 
       const imports = resolvedModules({
         importedFiles,
-        currentFileAbsPath,
+        targetFileAbsPath,
         tsConfigObject,
       });
 
       const sourceFile = ts.createSourceFile(
-        currentFileAbsPath,
+        targetFileAbsPath,
         fileContent,
         ts.ScriptTarget.ESNext,
       );
@@ -277,7 +277,7 @@ export const main = async (args: {
         printer,
       });
       transformedList.push({
-        path: currentFileAbsPath,
+        path: targetFileAbsPath,
         result,
       });
     }
