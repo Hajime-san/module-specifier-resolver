@@ -4,6 +4,7 @@ import {
   getModuleSpecifier,
   hasShouldResolveImportedFiles,
   isTokenObject,
+  resolvedModules,
   resolveModuleName,
   transform,
 } from './mod.ts';
@@ -74,6 +75,25 @@ Deno.test('resolveModuleName', async (t) => {
       } as ReturnType<typeof resolveModuleName>['resolvedModule'],
     );
   });
+});
+
+Deno.test('resolvedModules', () => {
+  assertEquals(
+    resolvedModules({
+      importedFiles: [{ fileName: './ComponentA', pos: 14, end: 26 }],
+      targetFileAbsPath: path.resolve(...[
+        __dirname,
+        '../examples/repo/src/App.tsx',
+      ]),
+      tsConfigObject: tsConfigMockObject,
+    }),
+    [
+      {
+        original: './ComponentA',
+        resolved: './ComponentA/index.ts',
+      },
+    ],
+  );
 });
 
 Deno.test('hasShouldResolveImportedFiles', async (t) => {

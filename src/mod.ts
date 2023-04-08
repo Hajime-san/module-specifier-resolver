@@ -94,7 +94,7 @@ export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
   };
 };
 
-const resolvedModules = (args: {
+export const resolvedModules = (args: {
   importedFiles: ts.FileReference[];
   targetFileAbsPath: string;
   tsConfigObject: ts.ParsedCommandLine;
