@@ -6,6 +6,7 @@ import { ComponentB } from './ComponentB';
 import { _ComponentC } from './ComponentC';
 import { ComponentC } from './ComponentC';
 import { ComponentD } from './ComponentD';
+const ComponentE = React.lazy(() => import('./ComponentE'));
 import style from './style.css';
 import './sideEffect';
 
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root') as HTMLElement)
       <ComponentB />
       <ComponentC />
       <ComponentD />
+      <ComponentE />
       <p>{str}</p>
     </React.StrictMode>,
   );
