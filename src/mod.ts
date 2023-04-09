@@ -3,7 +3,7 @@ import {
   hasShouldResolveImportedFiles,
   resolvedModules,
 } from './resolve_util.ts';
-import { preserveNewLine } from './str.ts';
+import { preserveNewLine, restoreNewLine } from './str.ts';
 import { transform } from './transform.ts';
 
 const flags = cli.parse(Deno.args, {
@@ -75,12 +75,15 @@ export const main = async (args: {
         ts.ScriptTarget.ESNext,
       );
 
-      const result = transform({
-        sourceFile,
-        imports,
-        tsConfigObject,
-        printer,
-      });
+      const result = restoreNewLine(
+        transform({
+          sourceFile,
+          imports,
+          tsConfigObject,
+          printer,
+        }),
+        tsConfigObject.options.newLine,
+      );
       transformedList.push({
         path: targetFileAbsPath,
         result,

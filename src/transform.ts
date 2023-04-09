@@ -1,6 +1,6 @@
 import { ts } from './deps.ts';
 import { getModuleSpecifier, ResolvedModuleImport } from './resolve_util.ts';
-import { hasUnicodeStr, restoreNewLine, unescapeUnicodeStr } from './str.ts';
+import { hasUnicodeStr, unescapeUnicodeStr } from './str.ts';
 
 const transformModuleSpecifier = (
   imports: Array<ResolvedModuleImport>,
@@ -60,7 +60,7 @@ export const transform = (args: {
   imports: Array<ResolvedModuleImport>;
   tsConfigObject: ts.ParsedCommandLine;
   printer: ts.Printer;
-}) => {
+}): string => {
   const { sourceFile, imports, tsConfigObject, printer } = args;
   const transformationResult = ts.transform(sourceFile, [
     transformModuleSpecifier(imports),
@@ -72,6 +72,5 @@ export const transform = (args: {
     ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
   );
   // unescape unicode text
-  const result = hasUnicodeStr(printed) ? unescapeUnicodeStr(printed) : printed;
-  return restoreNewLine(result, tsConfigObject.options.newLine);
+  return hasUnicodeStr(printed) ? unescapeUnicodeStr(printed) : printed;
 };
