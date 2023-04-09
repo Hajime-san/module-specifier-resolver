@@ -63,7 +63,7 @@ root
 ## limitation
 - Can't resolve `paths` alias of TypeScript compiler options.
 - Can't resolve `import()` syntax, commonly called `dynamic import`.
-- Plase be careful if your code have the text `/* _PRESERVE_NEWLINE_ */` which will be replace newline, because of that keeps original newline before tsc compiler optimize it.
+- Plase be careful if your code have the text `//_PRESERVE_NEWLINE_//` which will be replace newline, because of that keeps original newline before tsc compiler optimize it.
 - Can't keep `single quatation` or `duble quatation` , `semicolon` and `indatation` of original source code.
 
 ## tools
@@ -72,9 +72,9 @@ Please install [Deno](https://deno.land/manual@v1.30.3/getting_started/installat
 ## command
 ### remote
 - dry run
-  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.14/bin.ts -b=./src -c=./tsconfig.json -d`
+  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.15/bin.ts -b=./src -c=./tsconfig.json -d`
 - transform
-  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.14/bin.ts -b=./src -c=./tsconfig.json -r`
+  - `deno run --unstable --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.15/bin.ts -b=./src -c=./tsconfig.json -r`
 ### local
 - `deno task run-dry`
 - `deno task run`
