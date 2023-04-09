@@ -62,7 +62,7 @@ root
 
 ## limitation
 - Can't resolve `paths` mapping of TypeScript `compilerOptions`.
-- Plase be careful if your code have the text `//_PRESERVE_NEWLINE_//` which will be replace newline, because of that keeps original newline before tsc compiler optimize it.
+- Please be careful if your code have the text `//_PRESERVE_NEWLINE_//` which will be replace newline, because of that keeps original newline before tsc compiler optimize it.
 - Can't keep `single quatation` or `duble quatation` , `semicolon` and `indatation` of original source code.
 
 ## tools
@@ -81,8 +81,8 @@ Please install [Deno](https://deno.land/manual@v1.30.3/getting_started/installat
 ### arguments
 | key | description | type | default |
 |-----|-----|-----|-----|
-| -b | local of base directory | `string` | `.` |
-| -c  | local of base `tsconfig.json` | `string` | `./tsconfig.json` |
+| -b | locale of base directory | `string` | `.` |
+| -c  | locale of base `tsconfig.json` | `string` | `./tsconfig.json` |
 | -d  | dry run | `boolean` | `false` |
 | -r  | enable repl interface | `boolean` | `false` |
 
