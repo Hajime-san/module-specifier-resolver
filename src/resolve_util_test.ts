@@ -1,5 +1,5 @@
 import { asserts } from './dev_deps.ts';
-import { path, ts } from './deps.ts';
+import { path } from './deps.ts';
 import {
   getModuleSpecifier,
   hasShouldResolveImportedFiles,
