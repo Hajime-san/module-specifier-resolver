@@ -1,5 +1,9 @@
 import { ts } from './deps.ts';
-import { getModuleSpecifier, ResolvedModuleImport } from './resolve_util.ts';
+import {
+  getExpressionArguments,
+  getModuleSpecifier,
+  ResolvedModuleImport,
+} from './resolve_util.ts';
 import { hasUnicodeStr, unescapeUnicodeStr } from './str.ts';
 
 const transformModuleSpecifier = (
@@ -9,6 +13,28 @@ const transformModuleSpecifier = (
     const visit = (node: ts.Node): ts.Node => {
       const newNode = ts.visitEachChild(node, visit, context);
 
+      // Transform "import call"
+      //
+      // const foo = import('./foo');
+      // to
+      // const foo = import('./foo.(ts|tsx)');
+      if (
+        ts.isCallExpression(newNode) &&
+        newNode.expression.kind === ts.SyntaxKind.ImportKeyword
+      ) {
+        const { expressionArguments, node } = getExpressionArguments({
+          node: newNode,
+          imports,
+        });
+        return context.factory.updateCallExpression(
+          node,
+          node.expression,
+          node.typeArguments,
+          expressionArguments.map((argument) =>
+            context.factory.createStringLiteral(argument)
+          ),
+        );
+      }
       // Transform "aggregating modules"
       //
       // export { foo } from "./foo"
