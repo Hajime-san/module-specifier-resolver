@@ -22,6 +22,15 @@ const externalLibImportDeclaration = ts.factory.createImportDeclaration(
   undefined,
 );
 
+const localCallExpression = ts.factory.createCallExpression(
+  ts.factory.createPropertyAccessExpression(
+    ts.factory.createIdentifier('System'),
+    'register',
+  ),
+  undefined,
+  [ts.factory.createStringLiteral('./ComponentE')],
+);
+
 const tsConfigMockObject: ts.ParsedCommandLine = {
   options: {
     jsx: 4,
@@ -64,6 +73,7 @@ const tsConfigMockObject: ts.ParsedCommandLine = {
 
 export {
   externalLibImportDeclaration,
+  localCallExpression,
   localSourceImportDeclaration,
   tsConfigMockObject,
 };

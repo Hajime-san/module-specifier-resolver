@@ -1,6 +1,7 @@
 import { asserts } from './dev_deps.ts';
 import { path } from './deps.ts';
 import {
+  getExpressionArguments,
   getModuleSpecifier,
   hasShouldResolveImportedFiles,
   isTokenObject,
@@ -9,6 +10,7 @@ import {
 } from './resolve_util.ts';
 import {
   externalLibImportDeclaration,
+  localCallExpression,
   localSourceImportDeclaration,
   tsConfigMockObject,
 } from './tests/fixture/mod.ts';
@@ -153,6 +155,23 @@ Deno.test('getModuleSpecifier', async (t) => {
       {
         moduleSpecifier: 'react',
         node: externalLibImportDeclaration,
+      },
+    );
+  });
+});
+
+Deno.test('getExpressionArguments', async (t) => {
+  await t.step('local module', () => {
+    assertEquals(
+      getExpressionArguments({
+        node: localCallExpression,
+        imports: [
+          { original: './ComponentE', resolved: './ComponentE.tsx' },
+        ],
+      }),
+      {
+        expressionArguments: ['./ComponentE.tsx'],
+        node: localCallExpression,
       },
     );
   });

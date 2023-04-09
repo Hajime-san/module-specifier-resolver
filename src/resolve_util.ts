@@ -86,6 +86,27 @@ export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
   };
 };
 
+export const getExpressionArguments = (args: {
+  node: ts.CallExpression;
+  imports: ReturnType<typeof resolvedModules>;
+}): {
+  expressionArguments: Array<string>;
+  node: ts.CallExpression;
+} => {
+  const { node, imports } = args;
+  const expressionArguments = node.arguments.map((argument) => {
+    if (isTokenObject(argument)) {
+      return imports.find((v) => v.original === argument.text)?.resolved ??
+        argument.text;
+    }
+  }).filter((v) => typeof v !== 'undefined') as Array<string>;
+
+  return {
+    expressionArguments,
+    node,
+  };
+};
+
 export type ResolvedModuleImport = {
   original: string;
   resolved: string;
