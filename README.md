@@ -61,7 +61,7 @@ root
   ```
 
 ## limitation
-- Can't resolve `paths` alias of TypeScript compiler options.
+- Can't resolve `paths` mapping of TypeScript `compilerOptions`.
 - Plase be careful if your code have the text `//_PRESERVE_NEWLINE_//` which will be replace newline, because of that keeps original newline before tsc compiler optimize it.
 - Can't keep `single quatation` or `duble quatation` , `semicolon` and `indatation` of original source code.
 
