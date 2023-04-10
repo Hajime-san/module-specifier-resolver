@@ -36,25 +36,27 @@ const transformModuleSpecifier = (
         );
       }
       // Transform "aggregating modules"
-      //
-      // export { foo } from "./foo"
-      // to
-      // export { foo } from "./foo.(ts|tsx|d.ts)"
       if (ts.isExportDeclaration(newNode)) {
         const { moduleSpecifier, node } = getModuleSpecifier({
           node: newNode,
           imports,
         });
-        return context.factory.updateExportDeclaration(
-          node,
-          node.modifiers,
-          node.isTypeOnly,
-          node.exportClause,
-          moduleSpecifier
-            ? context.factory.createStringLiteral(moduleSpecifier)
-            : undefined,
-          node.assertClause,
-        );
+        // export { foo } from "./foo"
+        // to
+        // export { foo } from "./foo.(ts|tsx|d.ts)"
+        if (moduleSpecifier) {
+          return context.factory.updateExportDeclaration(
+            node,
+            node.modifiers,
+            node.isTypeOnly,
+            node.exportClause,
+            context.factory.createStringLiteral(moduleSpecifier),
+            node.assertClause,
+          );
+        }
+        //
+        // export { foo }
+        return newNode;
       }
       // Transform "static import"
       //
