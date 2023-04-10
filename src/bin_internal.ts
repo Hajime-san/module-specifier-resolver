@@ -159,9 +159,12 @@ ${result}
       });
     })).then(() => {
       console.log(
-        `%cDry run: ${transformedList.length} files, finished.
-${LOG_FILE_NAME}`,
+        `%cDry run: ${transformedList.length} files, finished.`,
         'color: green',
+      );
+      console.log(
+        `%cInfo: ${LOG_FILE_NAME}`,
+        'color: blue',
       );
     }).catch((error) => {
       throw new Error(error);
