@@ -45,6 +45,8 @@ export const main = async (args: {
     result: string;
   }> = [];
 
+  console.log('processing...');
+
   for await (const entry of walk(_basePath, { match, skip })) {
     if (entry.isFile) {
       const targetPath = entry.path;
@@ -132,9 +134,10 @@ export const main = async (args: {
   const LOG_FILE_NAME = 'module-specifier-resolver.log';
 
   const writeLog = async (): Promise<void> => {
+    // try remove log file if it exsist or not
     try {
       await Deno.remove(LOG_FILE_NAME);
-    } catch (_) {}
+    } catch (_) { /* noop */ }
     await Promise.all(transformedList.map((transformed) => {
       return new Promise((resolve, reject) => {
         const { path, result } = transformed;
@@ -159,9 +162,12 @@ ${result}
       });
     })).then(() => {
       console.log(
-        `%cDry run: ${transformedList.length} files, finished.
-${LOG_FILE_NAME}`,
+        `%cDry run: ${transformedList.length} files, finished.`,
         'color: green',
+      );
+      console.log(
+        `%cInfo: ${LOG_FILE_NAME}`,
+        'color: blue',
       );
     }).catch((error) => {
       throw new Error(error);

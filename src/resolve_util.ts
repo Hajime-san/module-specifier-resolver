@@ -68,7 +68,6 @@ export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
   imports: ReturnType<typeof resolvedModules>;
 }): {
   moduleSpecifier: ModuleSpecifierReturnType<T>;
-  node: T;
 } => {
   const { node, imports } = args;
   let moduleSpecifier: ModuleSpecifierReturnType<T>;
@@ -82,7 +81,6 @@ export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
   return {
     // @ts-ignore Variable 'X' is used before being assigned. deno-ts(2454)
     moduleSpecifier,
-    node,
   };
 };
 
@@ -91,7 +89,6 @@ export const getExpressionArguments = (args: {
   imports: ReturnType<typeof resolvedModules>;
 }): {
   expressionArguments: Array<string>;
-  node: ts.CallExpression;
 } => {
   const { node, imports } = args;
   const expressionArguments = node.arguments.map((argument) => {
@@ -103,7 +100,6 @@ export const getExpressionArguments = (args: {
 
   return {
     expressionArguments,
-    node,
   };
 };
 
