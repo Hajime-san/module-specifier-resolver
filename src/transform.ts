@@ -22,14 +22,14 @@ const transformModuleSpecifier = (
         ts.isCallExpression(newNode) &&
         newNode.expression.kind === ts.SyntaxKind.ImportKeyword
       ) {
-        const { expressionArguments, node } = getExpressionArguments({
+        const { expressionArguments } = getExpressionArguments({
           node: newNode,
           imports,
         });
         return context.factory.updateCallExpression(
-          node,
-          node.expression,
-          node.typeArguments,
+          newNode,
+          newNode.expression,
+          newNode.typeArguments,
           expressionArguments.map((argument) =>
             context.factory.createStringLiteral(argument)
           ),
@@ -37,7 +37,7 @@ const transformModuleSpecifier = (
       }
       // Transform "aggregating modules"
       if (ts.isExportDeclaration(newNode)) {
-        const { moduleSpecifier, node } = getModuleSpecifier({
+        const { moduleSpecifier } = getModuleSpecifier({
           node: newNode,
           imports,
         });
@@ -46,12 +46,12 @@ const transformModuleSpecifier = (
         // export { foo } from "./foo.(ts|tsx|d.ts)"
         if (moduleSpecifier) {
           return context.factory.updateExportDeclaration(
-            node,
-            node.modifiers,
-            node.isTypeOnly,
-            node.exportClause,
+            newNode,
+            newNode.modifiers,
+            newNode.isTypeOnly,
+            newNode.exportClause,
             context.factory.createStringLiteral(moduleSpecifier),
-            node.assertClause,
+            newNode.assertClause,
           );
         }
         //
@@ -64,16 +64,16 @@ const transformModuleSpecifier = (
       // to
       // import { bar } from "./bar.(ts|tsx|d.ts)"
       if (ts.isImportDeclaration(newNode)) {
-        const { moduleSpecifier, node } = getModuleSpecifier({
+        const { moduleSpecifier } = getModuleSpecifier({
           node: newNode,
           imports,
         });
         return context.factory.updateImportDeclaration(
-          node,
-          node.modifiers,
-          node.importClause,
+          newNode,
+          newNode.modifiers,
+          newNode.importClause,
           context.factory.createStringLiteral(moduleSpecifier),
-          node.assertClause,
+          newNode.assertClause,
         );
       }
       return newNode;

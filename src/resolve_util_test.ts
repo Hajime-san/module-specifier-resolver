@@ -141,7 +141,6 @@ Deno.test('getModuleSpecifier', async (t) => {
       }),
       {
         moduleSpecifier: './ComponentA.tsx',
-        node: localSourceImportDeclaration,
       },
     );
   });
@@ -154,7 +153,6 @@ Deno.test('getModuleSpecifier', async (t) => {
       }),
       {
         moduleSpecifier: 'react',
-        node: externalLibImportDeclaration,
       },
     );
   });
@@ -171,7 +169,6 @@ Deno.test('getExpressionArguments', async (t) => {
       }),
       {
         expressionArguments: ['./ComponentE.tsx'],
-        node: localCallExpression,
       },
     );
   });
