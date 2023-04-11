@@ -1,5 +1,6 @@
 import { fs, ts } from './deps.ts';
 
+// https://github.com/miyaoka/vue-composition-converter/pull/9
 export const hasUnicodeStr = (str: string): boolean => {
   return /\\u.{4}/gi.test(str);
 };

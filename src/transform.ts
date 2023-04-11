@@ -100,5 +100,6 @@ export const transform = (args: {
     ts.createSourceFile('', '', ts.ScriptTarget.ESNext),
   );
   // unescape unicode text
+  // https://github.com/microsoft/TypeScript/issues/36174
   return hasUnicodeStr(printed) ? unescapeUnicodeStr(printed) : printed;
 };
