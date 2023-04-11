@@ -10,7 +10,17 @@ const ComponentE = React.lazy(() => import('./ComponentE'));
 import style from './style.css';
 import './sideEffect';
 
-const str = '😎';
+const unicodeStr = '😎';
+
+const myCoolTemplateLiteral = `this
+
+is
+
+a
+
+template literal
+  ${unicodeStr}
+`;
 
 // a comment
 createRoot(document.getElementById('root') as HTMLElement)
@@ -21,6 +31,6 @@ createRoot(document.getElementById('root') as HTMLElement)
       <ComponentC />
       <ComponentD />
       <ComponentE />
-      <p>{str}</p>
+      <p>{myCoolTemplateLiteral}</p>
     </React.StrictMode>,
   );
