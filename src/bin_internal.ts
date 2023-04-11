@@ -78,6 +78,7 @@ export const main = async (args: {
       );
 
       const result = restoreNewLine(
+        // It seems like ts.Printer.printNode doesn't keep original source newline.🤔
         transform({
           sourceFile,
           imports,
