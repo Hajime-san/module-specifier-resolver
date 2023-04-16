@@ -49,12 +49,14 @@ export const hasShouldResolveImportedFiles = (args: {
       targetFileAbsPath,
       tsConfigObject,
     });
-    // node_modules
-    return (!resolvedModule?.isExternalLibraryImport &&
-      // falsy resolvedFileName
-      resolvedModule?.resolvedFileName) &&
-      // not has extension
-      path.extname(fileName) === '';
+    // is not ignore node_modules
+    return !resolvedModule?.isExternalLibraryImport &&
+      (resolvedModule?.resolvedFileName &&
+        // filename extension is different from resolvedFileName's
+        // filename: './foo' or './foo.js'
+        // resolved: './foo.ts'
+        (path.extname(fileName) !==
+          path.extname(resolvedModule.resolvedFileName)));
   });
   if (!shouldResolve) return false;
   return true;
