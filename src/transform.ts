@@ -7,11 +7,34 @@ import {
 import { hasUnicodeStr, unescapeUnicodeStr } from './str.ts';
 
 const transformModuleSpecifier = (
+  sourceFile: ts.SourceFile,
   imports: Array<ResolvedModuleImport>,
 ) => {
   return (context: ts.TransformationContext) => (rootNode: ts.Node) => {
     const visit = (node: ts.Node): ts.Node => {
       const newNode = ts.visitEachChild(node, visit, context);
+
+      // Preserve Numeric Literals
+      //
+      // const numericSeparators = 100_000;
+      // const octal = 0001;
+      // const hex = 0x00111;
+      // const binary = 0b0011;
+      // https://github.com/microsoft/TypeScript/issues/53182
+      if (ts.isNumericLiteral(newNode)) {
+        return context.factory.createNumericLiteral(
+          newNode.getText(sourceFile),
+        );
+      }
+
+      // Preserve BigInt Literals
+      //
+      // const previouslyMaxSafeInteger = 9007199254740991n;
+      if (ts.isBigIntLiteral(newNode)) {
+        return context.factory.createBigIntLiteral(
+          newNode.getText(sourceFile),
+        );
+      }
 
       // Transform "import call"
       //
@@ -91,7 +114,7 @@ export const transform = (args: {
 }): string => {
   const { sourceFile, imports, tsConfigObject, printer } = args;
   const transformationResult = ts.transform(sourceFile, [
-    transformModuleSpecifier(imports),
+    transformModuleSpecifier(sourceFile, imports),
   ], tsConfigObject.options);
 
   const printed = printer.printNode(
