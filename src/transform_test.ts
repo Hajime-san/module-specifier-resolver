@@ -11,7 +11,9 @@ Deno.test('transform', async (t) => {
         sourceFile: ts.createSourceFile(
           './src/App.tsx',
           `import { ComponentA } from './ComponentA';\n` +
-            `const str = '😎';\n`,
+            `const str = '😎';\n` +
+            `const bigIntLiterals = 0o777777777777n;\n` +
+            `const numericSeparators = 100_000;\n`,
           ts.ScriptTarget.ESNext,
         ),
         imports: [
@@ -21,7 +23,9 @@ Deno.test('transform', async (t) => {
         printer: ts.createPrinter(),
       }),
       `import { ComponentA } from "./ComponentA.tsx";\n` +
-        `const str = "😎";\n`,
+        `const str = "😎";\n` +
+        `const bigIntLiterals = 0o777777777777n;\n` +
+        `const numericSeparators = 100_000;\n`,
     );
   });
 });
