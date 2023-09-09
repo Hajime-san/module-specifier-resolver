@@ -1,28 +1,14 @@
 import { asserts } from './dev_deps.ts';
 import { path } from './deps.ts';
 import {
-  getExpressionArguments,
-  getModuleSpecifier,
+  getResolvedStringLiteral,
   hasShouldResolveImportedFiles,
-  isTokenObject,
   resolvedModules,
   resolveModuleName,
 } from './resolve_util.ts';
-import {
-  externalLibImportDeclaration,
-  localCallExpression,
-  localSourceImportDeclaration,
-  tsConfigMockObject,
-} from './tests/fixture/mod.ts';
+import { tsConfigMockObject } from './tests/fixture/mod.ts';
 const { assertEquals } = asserts;
 const __dirname = path.dirname(path.fromFileUrl(import.meta.url));
-
-Deno.test('isTokenObject', () => {
-  assertEquals(
-    isTokenObject(localSourceImportDeclaration.moduleSpecifier),
-    true,
-  );
-});
 
 Deno.test('resolveModuleName', async (t) => {
   await t.step('local module', () => {
@@ -130,46 +116,26 @@ Deno.test('hasShouldResolveImportedFiles', async (t) => {
   });
 });
 
-Deno.test('getModuleSpecifier', async (t) => {
+Deno.test('getResolvedStringLiteral', async (t) => {
   await t.step('local module', () => {
     assertEquals(
-      getModuleSpecifier({
-        node: localSourceImportDeclaration,
+      getResolvedStringLiteral({
+        originalText: '"./ComponentA"',
         imports: [
           { original: './ComponentA', resolved: './ComponentA.tsx' },
         ],
       }),
-      {
-        moduleSpecifier: './ComponentA.tsx',
-      },
+      './ComponentA.tsx',
     );
   });
 
   await t.step('node_module', () => {
     assertEquals(
-      getModuleSpecifier({
-        node: externalLibImportDeclaration,
+      getResolvedStringLiteral({
+        originalText: '\'react\'',
         imports: [],
       }),
-      {
-        moduleSpecifier: 'react',
-      },
-    );
-  });
-});
-
-Deno.test('getExpressionArguments', async (t) => {
-  await t.step('local module', () => {
-    assertEquals(
-      getExpressionArguments({
-        node: localCallExpression,
-        imports: [
-          { original: './ComponentE', resolved: './ComponentE.tsx' },
-        ],
-      }),
-      {
-        expressionArguments: ['./ComponentE.tsx'],
-      },
+      'react',
     );
   });
 });

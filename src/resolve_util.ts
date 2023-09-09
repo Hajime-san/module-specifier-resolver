@@ -1,19 +1,6 @@
 import { path, ts } from './deps.ts';
 import { relativeFilePath } from './path.ts';
 
-type NodeLike = ts.Node | ts.Expression;
-
-type HasModuleSpecifierNode = ts.ImportDeclaration | ts.ExportDeclaration;
-
-type TokenObject = NodeLike & {
-  text: string;
-};
-
-export const isTokenObject = (node: NodeLike): node is TokenObject => {
-  // deno-lint-ignore no-prototype-builtins
-  return (node as unknown as Record<string, unknown>).hasOwnProperty('text');
-};
-
 export const resolveModuleName = (args: {
   fileName: string;
   targetFileAbsPath: string;
@@ -62,47 +49,15 @@ export const hasShouldResolveImportedFiles = (args: {
   return true;
 };
 
-type ModuleSpecifierReturnType<T extends HasModuleSpecifierNode> = T extends
-  ts.ImportDeclaration ? string : string | undefined;
-
-export const getModuleSpecifier = <T extends HasModuleSpecifierNode>(args: {
-  node: T;
+export const getResolvedStringLiteral = (args: {
+  originalText: string;
   imports: ReturnType<typeof resolvedModules>;
-}): {
-  moduleSpecifier: ModuleSpecifierReturnType<T>;
-} => {
-  const { node, imports } = args;
-  let moduleSpecifier: ModuleSpecifierReturnType<T>;
-  if (node.moduleSpecifier && isTokenObject(node.moduleSpecifier)) {
-    const _moduleSpecifier = node.moduleSpecifier;
-    moduleSpecifier = imports.find((v) =>
-      v.original === _moduleSpecifier.text
-    )?.resolved ??
-      _moduleSpecifier.text;
-  }
-  return {
-    // @ts-ignore Variable 'X' is used before being assigned. deno-ts(2454)
-    moduleSpecifier,
-  };
-};
-
-export const getExpressionArguments = (args: {
-  node: ts.CallExpression;
-  imports: ReturnType<typeof resolvedModules>;
-}): {
-  expressionArguments: Array<string>;
-} => {
-  const { node, imports } = args;
-  const expressionArguments = node.arguments.map((argument) => {
-    if (isTokenObject(argument)) {
-      return imports.find((v) => v.original === argument.text)?.resolved ??
-        argument.text;
-    }
-  }).filter((v) => typeof v !== 'undefined') as Array<string>;
-
-  return {
-    expressionArguments,
-  };
+}): string => {
+  const { originalText, imports } = args;
+  // trim quotes
+  const formattedText = originalText.slice(1, -1);
+  return imports.find((v) => v.original === formattedText)?.resolved ??
+    formattedText;
 };
 
 export type ResolvedModuleImport = {
