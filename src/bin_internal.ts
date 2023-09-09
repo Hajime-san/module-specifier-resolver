@@ -75,6 +75,7 @@ export const main = async (args: {
         targetFileAbsPath,
         fileContent,
         ts.ScriptTarget.ESNext,
+        true,
       );
 
       const result = restoreNewLine(
