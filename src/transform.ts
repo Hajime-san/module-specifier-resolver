@@ -1,7 +1,6 @@
 import { ts } from './deps.ts';
 import {
-  getExpressionArguments,
-  getModuleSpecifier,
+  getResolvedStringLiteral,
   ResolvedModuleImport,
 } from './resolve_util.ts';
 import { hasUnicodeStr, unescapeUnicodeStr } from './str.ts';
@@ -42,62 +41,44 @@ const transformModuleSpecifier = (
       // to
       // const foo = import('./foo.(ts|tsx)');
       if (
-        ts.isCallExpression(newNode) &&
-        newNode.expression.kind === ts.SyntaxKind.ImportKeyword
+        ts.isStringLiteral(newNode) &&
+        ts.isCallExpression(newNode.parent) &&
+        newNode.parent.expression.kind === ts.SyntaxKind.ImportKeyword
       ) {
-        const { expressionArguments } = getExpressionArguments({
-          node: newNode,
+        const resolvedStringLiteral = getResolvedStringLiteral({
+          originalText: newNode.getText(sourceFile),
           imports,
         });
-        return context.factory.updateCallExpression(
-          newNode,
-          newNode.expression,
-          newNode.typeArguments,
-          expressionArguments.map((argument) =>
-            context.factory.createStringLiteral(argument)
-          ),
-        );
+        return context.factory.createStringLiteral(resolvedStringLiteral);
       }
+
       // Transform "aggregating modules"
-      if (ts.isExportDeclaration(newNode)) {
-        const { moduleSpecifier } = getModuleSpecifier({
-          node: newNode,
+      // export { foo } from "./foo"
+      // to
+      // export { foo } from "./foo.(ts|tsx|d.ts)"
+      if (
+        ts.isStringLiteral(newNode) && ts.isExportDeclaration(newNode.parent)
+      ) {
+        const resolvedStringLiteral = getResolvedStringLiteral({
+          originalText: newNode.getText(sourceFile),
           imports,
         });
-        // export { foo } from "./foo"
-        // to
-        // export { foo } from "./foo.(ts|tsx|d.ts)"
-        if (moduleSpecifier) {
-          return context.factory.updateExportDeclaration(
-            newNode,
-            newNode.modifiers,
-            newNode.isTypeOnly,
-            newNode.exportClause,
-            context.factory.createStringLiteral(moduleSpecifier),
-            newNode.assertClause,
-          );
-        }
-        //
-        // export { foo }
-        return newNode;
+        return context.factory.createStringLiteral(resolvedStringLiteral);
       }
+
       // Transform "static import"
       //
       // import { bar } from "./bar"
       // to
       // import { bar } from "./bar.(ts|tsx|d.ts)"
-      if (ts.isImportDeclaration(newNode)) {
-        const { moduleSpecifier } = getModuleSpecifier({
-          node: newNode,
+      if (
+        ts.isStringLiteral(newNode) && ts.isImportDeclaration(newNode.parent)
+      ) {
+        const resolvedStringLiteral = getResolvedStringLiteral({
+          originalText: newNode.getText(sourceFile),
           imports,
         });
-        return context.factory.updateImportDeclaration(
-          newNode,
-          newNode.modifiers,
-          newNode.importClause,
-          context.factory.createStringLiteral(moduleSpecifier),
-          newNode.assertClause,
-        );
+        return context.factory.createStringLiteral(resolvedStringLiteral);
       }
       return newNode;
     };
