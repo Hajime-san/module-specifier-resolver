@@ -51,3 +51,6 @@ jobs:
 
       - name: test
         run: deno task test
+
+      - name: publish test
+        run: deno publish --dry-run
