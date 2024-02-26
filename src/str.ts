@@ -30,16 +30,10 @@ export const preserveNewLine = (str: string) => {
  * @param str
  * @returns
  */
-export const restoreNewLine = (str: string, newLineConfig?: ts.NewLineKind) => {
-  const newLineStr = newLineConfig
-    // Prioritize tsconfig newLine option, otherwise it belongs to os.
-    ? newLineConfig === ts.NewLineKind.LineFeed ? fs.EOL.LF : fs.EOL.CRLF
-    : Deno.build.os === 'windows'
-    ? fs.EOL.CRLF
-    : fs.EOL.LF;
+export const restoreNewLine = (str: string) => {
   return str
     // with newline
-    .replace(/\/\/_PRESERVE_NEWLINE_\/\/\n/g, newLineStr)
+    .replace(/\/\/_PRESERVE_NEWLINE_\/\/\n/g, fs.EOL)
     // without newline
     .replace(/\/\/_PRESERVE_NEWLINE_\/\//g, '');
 };

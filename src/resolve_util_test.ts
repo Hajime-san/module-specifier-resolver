@@ -132,7 +132,7 @@ Deno.test('getResolvedStringLiteral', async (t) => {
   await t.step('node_module', () => {
     assertEquals(
       getResolvedStringLiteral({
-        originalText: '\'react\'',
+        originalText: "'react'",
         imports: [],
       }),
       'react',
