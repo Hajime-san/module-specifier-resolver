@@ -21,7 +21,7 @@ export const NEW_LINE = '\n//_PRESERVE_NEWLINE_//\n';
  * @param str
  * @returns
  */
-export const preserveNewLine = (str: string) => {
+export const preserveNewLine = (str: string): string => {
   return str.replace(/(\r|\n)\n/g, NEW_LINE);
 };
 
@@ -30,7 +30,7 @@ export const preserveNewLine = (str: string) => {
  * @param str
  * @returns
  */
-export const restoreNewLine = (str: string) => {
+export const restoreNewLine = (str: string): string => {
   return str
     // with newline
     .replace(/\/\/_PRESERVE_NEWLINE_\/\/\n/g, fs.EOL)

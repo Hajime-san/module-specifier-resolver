@@ -5,7 +5,7 @@ export const resolveModuleName = (args: {
   fileName: string;
   targetFileAbsPath: string;
   tsConfigObject: ts.ParsedCommandLine;
-}) => {
+}): ts.ResolvedModuleWithFailedLookupLocations => {
   const { fileName, targetFileAbsPath, tsConfigObject } = args;
   return ts.resolveModuleName(
     fileName,
