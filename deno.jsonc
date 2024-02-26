@@ -1,6 +1,6 @@
 {
-  "name": "@hajime-san/module-specifier-resolver",
-  "version": "1.0.20",
+  "name": "@hajime-san/specifier-resolver",
+  "version": "1.0.21",
   "exports": "./bin.ts",
   "tasks": {
     "run-dry": "deno run --allow-env --allow-read --allow-write bin.ts -b=./examples/repo/src -c=./examples/repo/tsconfig.json -d",
