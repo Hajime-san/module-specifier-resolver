@@ -1,6 +1,6 @@
-export * as path from 'https://deno.land/std@0.177.0/path/mod.ts';
-export { walk } from 'https://deno.land/std@0.177.0/fs/walk.ts';
+export * as path from 'jsr:@std/path@0.217.0';
+export { walk } from 'jsr:@std/fs@0.217.0';
 export { default as ts } from 'npm:typescript@5.0.3';
-export * as cli from 'https://deno.land/std@0.177.0/flags/mod.ts';
-export * as io from 'https://deno.land/std@0.177.0/io/mod.ts';
-export * as fs from 'https://deno.land/std@0.177.0/fs/mod.ts';
+export * as cli from 'jsr:@std/flags@0.217.0';
+export * as io from 'jsr:@std/io@0.217.0';
+export * as fs from 'jsr:@std/fs@0.217.0';
