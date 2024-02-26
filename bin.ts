@@ -202,3 +202,5 @@ ${result}
 if(import.meta.main) {
   await main();
 }
+
+export { main };
