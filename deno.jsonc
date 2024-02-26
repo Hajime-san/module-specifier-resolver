@@ -11,19 +11,13 @@
     "lib": ["deno.ns", "ESNext", "deno.window"]
   },
   "fmt": {
-    "options": {
-      "indentWidth": 2,
-      "useTabs": false,
-      "singleQuote": true
-    },
-    "files": {
-      "include": ["src", "examples/repo"],
-      "exclude": ["node_modules"]
-    }
+    "indentWidth": 2,
+    "useTabs": false,
+    "singleQuote": true,
+    "include": ["src", "examples/repo", "deno.jsonc"],
+    "exclude": ["node_modules"]
   },
   "test": {
-    "files": {
-      "include": ["src"]
-    }
+    "include": ["src"]
   }
 }
