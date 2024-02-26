@@ -1,8 +1,9 @@
 {
   "name": "@hajime-san/specifier-resolver",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "exports": "./bin.ts",
   "tasks": {
+    "set-up": "cd examples/repo && npm ci",
     "run-dry": "deno run --allow-env --allow-read --allow-write bin.ts -b=./examples/repo/src -c=./examples/repo/tsconfig.json -d",
     "run": "deno run --allow-env --allow-read --allow-write bin.ts -b=./examples/repo/src -c=./examples/repo/tsconfig.json -r",
     "test": "deno test --allow-read"
@@ -11,19 +12,13 @@
     "lib": ["deno.ns", "ESNext", "deno.window"]
   },
   "fmt": {
-    "options": {
-      "indentWidth": 2,
-      "useTabs": false,
-      "singleQuote": true
-    },
-    "files": {
-      "include": ["src", "examples/repo"],
-      "exclude": ["node_modules"]
-    }
+    "indentWidth": 2,
+    "useTabs": false,
+    "singleQuote": true,
+    "include": ["src", "examples/repo", "deno.jsonc"],
+    "exclude": ["node_modules"]
   },
   "test": {
-    "files": {
-      "include": ["src"]
-    }
+    "include": ["src"]
   }
 }

@@ -86,7 +86,6 @@ const main = async (args: {
           tsConfigObject,
           printer,
         }),
-        tsConfigObject.options.newLine,
       );
       transformedList.push({
         path: targetFileAbsPath,
