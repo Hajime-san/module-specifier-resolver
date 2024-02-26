@@ -71,9 +71,9 @@ Please install [Deno](https://deno.land/manual@v1.30.3/getting_started/installat
 ## command
 ### remote
 - dry run
-  - `deno run --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.23/bin.ts -b=./src -c=./tsconfig.json -d`
+  - `deno run --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.24/bin.ts -b=./src -c=./tsconfig.json -d`
 - transform
-  - `deno run --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.23/bin.ts -b=./src -c=./tsconfig.json -r`
+  - `deno run --allow-env --allow-read --allow-write https://deno.land/x/module_specifier_resolver@v1.0.24/bin.ts -b=./src -c=./tsconfig.json -r`
 ### local
 - `deno task run-dry`
 - `deno task run`

@@ -1,6 +1,6 @@
 {
   "name": "@hajime-san/specifier-resolver",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "exports": "./bin.ts",
   "tasks": {
     "set-up": "cd examples/repo && npm ci",
