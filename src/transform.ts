@@ -8,7 +8,7 @@ import { hasUnicodeStr, unescapeUnicodeStr } from './str.ts';
 const transformModuleSpecifier = (
   sourceFile: ts.SourceFile,
   imports: Array<ResolvedModuleImport>,
-) => {
+): (context: ts.TransformationContext) => (rootNode: ts.Node) => ts.Node => {
   return (context: ts.TransformationContext) => (rootNode: ts.Node) => {
     const visit = (node: ts.Node): ts.Node => {
       const newNode = ts.visitEachChild(node, visit, context);
